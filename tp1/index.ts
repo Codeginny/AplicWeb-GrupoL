@@ -57,3 +57,27 @@ enum DiasSemana {
 let variable: number | string;
 variable = "Messi";
 variable = 10;
+
+
+// 8. Interfaz y clase genérica
+interface Fila<T> {
+  agregar(elemento: T): void;
+  remover(): T | undefined;
+}
+
+class FilaGenerica<T> implements Fila<T> {
+  private elementos: T[] = [];
+
+  /** Agrega un elemento al final de la fila */
+  agregar(elemento: T): void {
+    this.elementos.push(elemento);
+  }
+
+  /**
+   * Remueve y retorna el primer elemento de la fila.
+   * Retorna `undefined` si la fila está vacía.
+   */
+  remover(): T | undefined {
+    return this.elementos.shift();
+  }
+}

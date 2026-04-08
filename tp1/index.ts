@@ -1,39 +1,43 @@
+// 1. Interfaz Animal con método gritar que retorna string
 interface Animal {
     nombre: string;
-    hacerSonido(): void;
+    gritar(): string;
 }
 
+// 2. Clases que implementan la interfaz Animal
 class Perro implements Animal {
     constructor(public nombre: string) {}
-
-    hacerSonido(): void {
-        console.log("¡Guau! ¡Guau!");
+    gritar(): string {
+        return "¡Guau!";
     }
 }
 
 class Gato implements Animal {
     constructor(public nombre: string) {}
-
-    hacerSonido(): void {
-        console.log("¡Miau!");
+    gritar(): string {
+        return "¡Miau!";
     }
 }
 
 class Vaca implements Animal {
     constructor(public nombre: string) {}
-
-    hacerSonido(): void {
-        console.log("¡Muuu!");
+    gritar(): string {
+        return "¡Muuu!";
     }
 }
 
+// 3. Función describirAnimal con el formato de impresión exacto solicitado
 function describirAnimal(animal: Animal): void {
-    console.log(`Este animal se llama: ${animal.nombre}`);
-    animal.hacerSonido();
+    // Debe imprimir: "El animal [nombre] hace [ruido]"
+    console.log(`El animal ${animal.nombre} hace ${animal.gritar()}`);
 }
 
-const miPerro = new Perro("Choco");
-const miGato = new Gato("Mishi");
+// 4. Constantes con instancia y tipo de datos declarado
+const perro: Perro = new Perro("Rocco");
+const vaca: Vaca = new Vaca("Lola");
+const gato: Gato = new Gato("Mishi");
 
-describirAnimal(miPerro);
-describirAnimal(miGato);
+// 5. Ejecución del método describirAnimal para cada constante
+describirAnimal(perro);
+describirAnimal(vaca);
+describirAnimal(gato);

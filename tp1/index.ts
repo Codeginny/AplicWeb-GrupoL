@@ -54,6 +54,6 @@ enum DiasSemana {
 }
 
 // 7. Variable que acepta string o number
-let laVariableDelPuntoSiete: number | string;
-laVariableDelPuntoSiete = "Messi";
-laVariableDelPuntoSiete = 10;
+let variable: number | string;
+variable = "Messi";
+variable = 10;

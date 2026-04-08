@@ -32,16 +32,6 @@ function describirAnimal(animal: Animal): void {
   console.log(`El animal ${animal.nombre} hace ${animal.gritar()}`);
 }
 
-// 4. Constantes con instancia y tipo de datos declarado
-const perro: Perro = new Perro("Rocco");
-const vaca: Vaca = new Vaca("Lola");
-const gato: Gato = new Gato("Mishi");
-
-// 5. Ejecución del método describirAnimal para cada constante
-describirAnimal(perro);
-describirAnimal(vaca);
-describirAnimal(gato);
-
 // 6. Enum con los días de la semana
 enum DiasSemana {
   Lunes,

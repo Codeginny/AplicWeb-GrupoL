@@ -32,8 +32,8 @@ function describirAnimal(animal: Animal): void {
     animal.hacerSonido();
 }
 
-const miPerro = new Perro("Firulais");
-const miGato = new Gato("Michi");
+const miPerro = new Perro("Choco");
+const miGato = new Gato("Mishi");
 
 describirAnimal(miPerro);
 describirAnimal(miGato);

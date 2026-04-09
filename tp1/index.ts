@@ -94,22 +94,22 @@ let filaAnimales = new FilaGenerica<Animal>();
 //En las otras 2 filas, agregar 3 elementos a elección en cada una. Para finalizar,
 //remover un elemento de cada una de las 3 filas.
 
-console.log("----------------------------Elementos agregados al a Fila animales");
+console.log("----------------------------Elementos agregados en la fila animales");
 filaAnimales.agregar(perro)
 filaAnimales.agregar(vaca)
 filaAnimales.agregar(gato)
 
-console.log("----------------------------Elementos en la fila de números:");
+console.log("----------------------------Elementos agregados en la fila de números:");
 filaNumeros.agregar(0);
 filaNumeros.agregar(1); 
 filaNumeros.agregar(2);
 
-console.log("----------------------------Elementos en la fila de strings:");
+console.log("----------------------------Elementos agregados en la fila de strings:");
 filaStrings.agregar("Hola");
 filaStrings.agregar("Mundo");  
 filaStrings.agregar("!");
 
-console.log("----------------------------1 Elemento removido de cada Fila:");
+console.log("----------------------------1 Elementos removidos de cada fila:");
 filaAnimales.remover();
 filaNumeros.remover();
 filaStrings.remover();

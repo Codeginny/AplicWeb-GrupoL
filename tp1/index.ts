@@ -80,4 +80,36 @@ class FilaGenerica<T> implements Fila<T> {
   remover(): T | undefined {
     return this.elementos.shift();
   }
+
 }
+
+//9 Crear una fila para números, una fila para strings, y una fila para animales (declarando los tipos correspondientes en cada variable)
+
+let filaNumeros = new FilaGenerica<number>();
+let filaStrings = new FilaGenerica<string>();
+let filaAnimales = new FilaGenerica<Animal>();
+
+
+//10 - En la fila para animales, agregar las 3 instancias que fueron creadas con anterioridad.
+//En las otras 2 filas, agregar 3 elementos a elección en cada una. Para finalizar,
+//remover un elemento de cada una de las 3 filas.
+
+console.log("----------------------------Elementos agregados al a Fila animales");
+filaAnimales.agregar(perro)
+filaAnimales.agregar(vaca)
+filaAnimales.agregar(gato)
+
+console.log("----------------------------Elementos en la fila de números:");
+filaNumeros.agregar(0);
+filaNumeros.agregar(1); 
+filaNumeros.agregar(2);
+
+console.log("----------------------------Elementos en la fila de strings:");
+filaStrings.agregar("Hola");
+filaStrings.agregar("Mundo");  
+filaStrings.agregar("!");
+
+console.log("----------------------------1 Elemento removido de cada Fila:");
+filaAnimales.remover();
+filaNumeros.remover();
+filaStrings.remover();

@@ -8,7 +8,6 @@ Este repositorio centraliza todos los trabajos prácticos y el Proyecto Final In
 ##  Integrantes del Grupo L
 * **Boris Kovalow** - [@Zorzem](https://github.com/Zorzem)
 * **Giuliano Daniele** - [@Vitruviansky](https://github.com/Vitruviansky)
-* **Jose Herrera** - [@joseherreraa1](https://github.com/joseherreraa1)
 * **Matias Godoy** - [@Kbzgames](https://github.com/Kbzgames)
 * **Virginia Alejandra Ponce** - [@CodeGinny](https://github.com/CodeGinny)
 

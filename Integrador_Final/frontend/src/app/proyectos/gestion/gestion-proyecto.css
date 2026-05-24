@@ -1,0 +1,197 @@
+:host {
+  display: block;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.form-moderno {
+  padding-top: 0.5rem;
+}
+
+#contenedor-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.campo-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label-moderno {
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #7a6e63;
+}
+
+#contenedor-formulario input[pInputText] {
+  width: 100%;
+  border-radius: 28px !important;
+  border: 1.5px solid #e6ddd0 !important;
+  background: #fffef8 !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+#contenedor-formulario input[pInputText]:focus {
+  border-color: #f2bc5b !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(242, 188, 91, 0.2);
+}
+
+.input-combinado {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.selector-cliente {
+  flex: 1;
+  width: 100%;
+}
+
+#boton-gestionar-clientes {
+  background: transparent !important;
+  border: 1.5px solid #e6ddd0 !important;
+  border-radius: 40px !important;
+  height: 44px;
+  width: 44px;
+  padding: 0 !important;
+  color: #b8a992 !important;
+  transition: all 0.2s ease;
+}
+
+#boton-gestionar-clientes:hover {
+  background: rgba(242, 188, 91, 0.1) !important;
+  border-color: #dba34a !important;
+  color: #dba34a !important;
+  transform: translateY(-2px);
+}
+
+.form-acciones {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  border-top: 1px solid #e6ddd0;
+  padding-top: 1.5rem;
+}
+
+.form-acciones .p-button-text {
+  background: transparent !important;
+  border: 1.5px solid #e6ddd0 !important;
+  border-radius: 40px !important;
+  padding: 0.6rem 1.2rem !important;
+  color: #7a6e63 !important;
+  font-weight: 500 !important;
+}
+
+.form-acciones .p-button-text:hover {
+  background: rgba(230, 221, 208, 0.3) !important;
+  border-color: #dba34a !important;
+  color: #5c4e3d !important;
+  transform: translateY(-1px);
+}
+
+#guardar {
+  background: linear-gradient(95deg, #e6c287, #cb9e5e) !important;
+  border: none !important;
+  border-radius: 40px !important;
+  padding: 0.6rem 1.5rem !important;
+  font-weight: 600 !important;
+  color: #2c241a !important;
+  transition: 0.2s ease !important;
+  box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.1);
+}
+
+#guardar:hover {
+  transform: scale(0.97);
+  background: linear-gradient(95deg, #dcb27a, #c09054) !important;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   ESTILOS FORZADOS PARA P-SELECT (DENTRO DEL DIÁLOGO)
+   ============================================ */
+
+::ng-deep .p-dialog .p-select {
+  border-radius: 28px !important;
+  border: 1.5px solid #e6ddd0 !important;
+  background: #fffef8 !important;
+  min-height: 44px !important;
+  height: auto !important;
+  padding: 0 1rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+::ng-deep .p-dialog .p-select .p-select-label,
+::ng-deep .p-dialog .p-select .p-dropdown-trigger {
+  border-radius: 28px !important;
+  background: transparent !important;
+}
+
+::ng-deep .p-dialog .p-select .p-select-label {
+  color: #2b2a27 !important;
+  font-size: 0.95rem !important;
+  padding: 0 !important;
+}
+
+::ng-deep .p-dialog .p-select .p-dropdown-icon {
+  color: #c0a886 !important;
+}
+
+/* Panel desplegable: fondo SÓLIDO beige */
+::ng-deep .p-dialog .p-select-panel {
+  background: #fffef8 !important;
+  border-radius: 24px 12px 24px 12px !important;
+  border: 1px solid #e6ddd0 !important;
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.15) !important;
+  margin-top: 0.5rem;
+}
+
+::ng-deep .p-dialog .p-select-panel .p-select-items-wrapper,
+::ng-deep .p-dialog .p-select-panel .p-select-items {
+  background: #fffef8 !important;
+  border-radius: inherit;
+}
+
+/* Opciones: fondo sólido beige, texto oscuro */
+::ng-deep .p-dialog .p-select-option {
+  background: #fffef8 !important;
+  color: #2b2a27 !important;
+  padding: 0.7rem 1rem !important;
+  font-size: 0.9rem !important;
+}
+
+::ng-deep .p-dialog .p-select-option:hover {
+  background: rgba(242, 188, 91, 0.15) !important;
+}
+
+::ng-deep .p-dialog .p-select-option.p-highlight {
+  background: rgba(242, 188, 91, 0.25) !important;
+  color: #8b6b3d !important;
+  font-weight: 500;
+}
+
+::ng-deep .p-dialog .p-select-option.p-focus {
+  background: rgba(242, 188, 91, 0.1) !important;
+}

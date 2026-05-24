@@ -1,0 +1,56 @@
+<p-dialog 
+    [header]="header()" 
+    [modal]="true" 
+    [(visible)]="visible" 
+    [style]="{ width: '420px', 'max-width': '90vw' }"
+    [draggable]="false"
+    [resizable]="false"
+    (onHide)="cerrarDialog()">
+
+    <form [formGroup]="form" class="form-moderno">
+        <div id="contenedor-formulario">
+
+            <div class="campo-grupo">
+                <label for="nombre" class="label-moderno">Nombre del Cliente</label>
+                <input 
+                    pInputText 
+                    type="text" 
+                    id="nombre" 
+                    placeholder="Ej. Acme Corporation" 
+                    formControlName="nombre" />
+            </div>
+
+            @if (clienteSeleccionado()) {
+                <div class="campo-grupo animate-fade-in">
+                    <label for="estado" class="label-moderno">Estado Operativo</label>
+                    <p-select 
+                        id="estado" 
+                        formControlName="estado" 
+                        [options]="estados()" 
+                        placeholder="Seleccionar estado" 
+                        appendTo="body" />
+                </div>
+            }
+
+            <div class="form-acciones">
+                <button 
+                    pButton 
+                    type="button" 
+                    label="Cancelar" 
+                    severity="secondary" 
+                    [text]="true" 
+                    (click)="cerrarDialog()">
+                </button>
+                <button 
+                    pButton 
+                    type="submit" 
+                    id="guardar"
+                    label="Guardar Cliente" 
+                    icon="pi pi-check" 
+                    (click)="guardarCliente()">
+                </button>
+            </div>
+
+        </div>
+    </form>
+</p-dialog>

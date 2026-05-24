@@ -1,0 +1,82 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+#header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  box-shadow: 0 4px 12px -6px rgba(0, 0, 0, 0.08), 0 1px 0 0 rgba(255, 255, 255, 0.6) inset;
+  border-bottom: 1px solid rgba(230, 221, 208, 0.5);
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-icon {
+  font-size: 1.5rem;
+  color: #dba34a;  
+}
+
+#nombre-de-proyecto {
+  font-size: 1.2rem;
+  font-weight: 550;
+  letter-spacing: -0.02em;
+  color: #2b2a27;
+  margin: 0;
+}
+
+
+.btn-cerrar-sesion {
+  background: transparent !important;
+  border: 1.5px solid #e6ddd0 !important;
+  border-radius: 40px !important;
+  padding: 0.5rem 1.2rem !important;
+  color: #7a6e63 !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.btn-cerrar-sesion:hover {
+  background: rgba(230, 221, 208, 0.3) !important;
+  border-color: #dba34a !important;
+  color: #5c4e3d !important;
+  transform: translateY(-1px);
+}
+
+.btn-cerrar-sesion i {
+  font-size: 1rem;
+}
+
+#content {
+  margin-top: 70px;
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  #nombre-de-proyecto {
+    font-size: 1.25rem;
+  }
+}

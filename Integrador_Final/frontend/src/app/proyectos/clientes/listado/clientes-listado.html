@@ -1,0 +1,68 @@
+<p-dialog 
+    header="Clientes" 
+    [modal]="true" 
+    [(visible)]="visible" 
+    [style]="{ width: '750px', 'max-width': '95vw' }"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <div class="page-container">
+        <div class="page-header">
+            <div>
+                <p class="page-subtitle">Visualizá y administrá las firmas asociadas a tus proyectos.</p>
+            </div>
+            <p-button 
+                id="boton-crear-cliente" 
+                icon="pi pi-plus" 
+                label="Crear Cliente" 
+                styleClass="btn-primario"
+                (click)="crearCliente()">
+            </p-button>
+        </div>
+
+        <div class="tabla-wrapper">
+            <p-table 
+                id="tabla" 
+                [value]="clientes()" 
+                [scrollable]="true"
+                scrollHeight="450px">
+                <ng-template #header>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Estado</th>
+                        <th class="text-right">Acciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-cliente>
+                    <tr>
+                        <td class="font-medium">{{ cliente.nombre }}</td>
+                        <td>
+                            <span class="badge-estado" [class.activo]="cliente.estado === 'Activo'">
+                                {{ cliente.estado }}
+                            </span>
+                        </td>
+                        <td class="text-right table-actions">
+                            <p-button 
+                                icon="pi pi-pencil" 
+                                [text]="true"
+                                pTooltip="Editar Cliente" 
+                                tooltipPosition="top"
+                                (click)="editarCliente(cliente)">
+                            </p-button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                    <tr>
+                        <td colspan="3" class="tabla-vacia">
+                            <i class="pi pi-users empty-icon"></i>
+                            <p>No se encontraron clientes registrados.</p>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</p-dialog>
+
+<app-gestion-cliente [(visible)]="dialogVisible" [(clienteSeleccionado)]="clienteSeleccionado"></app-gestion-cliente>

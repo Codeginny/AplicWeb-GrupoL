@@ -1,0 +1,60 @@
+<div class="login-wrapper">
+
+  <div class="bg-shape shape-1"></div>
+  <div class="bg-shape shape-2"></div>
+
+  <div class="login-container">
+    <div class="login-card">
+      
+     <div class="login-header">
+        <div class="login-icon-box">
+            <i class="pi pi-briefcase login-icon"></i>
+        </div>
+        <h2>Gestión de Proyectos</h2>
+        <p class="login-subtitle">Completá estos datos y entrás al sistema</p>
+        </div>
+
+      <form [formGroup]="form" (ngSubmit)="iniciarSesion()">
+        <div class="form-fields">
+          <div class="campo-grupo">
+            <label class="label-moderno">Usuario</label>
+            <div class="input-wrapper">
+              <input
+                pInputText
+                type="text"
+                formControlName="nombre"
+                placeholder="Ingrese su usuario"
+                autocomplete="username"
+              />
+            </div>
+          </div>
+
+          <div class="campo-grupo">
+            <label class="label-moderno">Contraseña</label>
+            <div class="password-field-wrapper">
+                <p-password
+                    formControlName="clave"
+                    [feedback]="false"
+                    [toggleMask]="true"
+                    placeholder="Ingrese su contraseña"
+                    autocomplete="current-password"
+                    inputStyleClass="password-input-custom">
+                </p-password>
+            </div>
+          </div>
+
+          <button
+            pButton
+            type="submit"
+            label="Ingresar"
+            icon="pi pi-arrow-right"
+            iconPos="right"
+            class="boton-login"
+          ></button>
+
+          <p class="login-footer-msg">TP Final - Desarrollo de Aplicaciones Web - Grupo L</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,58 @@
+<p-dialog 
+    [header]="header()" 
+    [modal]="true" 
+    [(visible)]="visible" 
+    [style]="{ width: '450px', 'max-width': '90vw' }"
+    [draggable]="false"
+    [resizable]="false"
+    (onHide)="cerrarDialog()">
+
+    <form [formGroup]="form" class="form-moderno">
+        <div id="contenedor-formulario">
+
+            <div class="campo-grupo">
+                <label for="nombre" class="label-moderno">Nombre del Proyecto</label>
+                <input pInputText type="text" id="nombre" formControlName="nombre" />
+            </div>
+
+            <div class="campo-grupo">
+                <label class="label-moderno">Cliente</label>
+                <div class="input-combinado">
+                    <p-select
+                    class="selector-cliente"
+                    formControlName="cliente"
+                    [options]="clientes()"
+                    optionLabel="nombre"
+                    [placeholder]="'Seleccionar cliente'"
+                    [showClear]="true"
+                    ></p-select>
+                    <button 
+                    type="button"
+                    id="boton-gestionar-clientes" 
+                    pButton 
+                    icon="pi pi-cog"
+                    pTooltip="Gestionar Clientes"
+                    tooltipPosition="top"
+                    (click)="gestionarClientes()"
+                    severity="secondary">
+                    </button>
+                </div>
+            </div>
+
+            @if (proyectoSeleccionado()) {
+                <div class="campo-grupo animate-fade-in">
+                    <label for="estado" class="label-moderno">Estado del Proyecto</label>
+                    <p-select id="estado" formControlName="estado" [options]="estados()" placeholder="Seleccionar estado" appendTo="body" />
+                </div>
+            }
+
+            <div class="form-acciones">
+                <button pButton type="button" label="Cancelar" severity="secondary" [text]="true" (click)="cerrarDialog()"></button>
+                <button pButton type="submit" id="guardar" label="Guardar Proyecto" icon="pi pi-check" (click)="guardarProyecto()"></button>
+            </div>
+
+        </div>
+    </form>
+</p-dialog>
+
+<app-clientes-listado [(visible)]="dialogClientesVisible"></app-clientes-listado>

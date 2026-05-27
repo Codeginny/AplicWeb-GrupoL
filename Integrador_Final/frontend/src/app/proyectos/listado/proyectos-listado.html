@@ -11,7 +11,17 @@
             label="Crear Proyecto" 
             styleClass="btn-primario"
             (click)="crearProyecto()">
+            
         </p-button>
+            <p-button 
+            icon="pi pi-download" 
+            [text]="true" 
+            severity="secondary"
+            pTooltip="Exportar a Excel"
+            tooltipPosition="top"
+            (click)="exportarExcel()">
+        </p-button>
+
         </div>
 
         <div class="tabla-wrapper">

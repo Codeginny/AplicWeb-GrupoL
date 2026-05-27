@@ -8,4 +8,16 @@ export class CreateClienteDto {
     @IsNotEmpty()
     nombre!: string;
 
+
+    @ApiProperty()
+    @IsString()
+    @IsNotEmpty()
+    telefono!: string;
+
+    @ApiProperty()
+    @IsString()
+    @IsNotEmpty()
+    email!: string;
+    
+
 }

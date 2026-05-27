@@ -30,6 +30,8 @@
                     <tr>
                         <th>Nombre</th>
                         <th>Estado</th>
+                        <th>Email</th>
+                        <th>Telefono</th>
                         <th class="text-right">Acciones</th>
                     </tr>
                 </ng-template>
@@ -41,6 +43,8 @@
                                 {{ cliente.estado }}
                             </span>
                         </td>
+                        <td>{{ cliente.email }}</td>
+                        <td>{{ cliente.telefono }}</td>
                         <td class="text-right table-actions">
                             <p-button 
                                 icon="pi pi-pencil" 

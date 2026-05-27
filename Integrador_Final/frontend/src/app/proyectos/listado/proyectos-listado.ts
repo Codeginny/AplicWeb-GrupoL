@@ -7,6 +7,8 @@ import { ButtonModule } from "primeng/button";
 import { Template } from "../../template/template";
 import { TooltipModule } from 'primeng/tooltip';
 import { GestionProyecto } from "../gestion/gestion-proyecto";
+import * as XLSX from 'xlsx';
+
 
 @Component({
   selector: "app-proyectos-listado",
@@ -61,5 +63,26 @@ export class ProyectosListado implements OnInit {
   gestionarTareas(proyecto: ListProyectoDTO): void {
     window.open(`/proyectos/${proyecto.id}/tareas`, '_blank');
   }
+
+  //  Exportar a Excel
+  exportarExcel(): void {
+  const proyectos = this.proyectos();
+  
+  // Mapear los datos a un formato plano para Excel
+  const datosExcel = proyectos.map(proyecto => ({
+    'Nombre': proyecto.nombre,
+    'Cliente': proyecto.cliente?.nombre || 'Sin asignar',
+    'Estado': proyecto.estado
+  }));
+
+  // Crear hoja de trabajo y libro
+  const worksheet = XLSX.utils.json_to_sheet(datosExcel);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Proyectos');
+
+  // Generar archivo y forzar descarga
+  XLSX.writeFile(workbook, `proyectos_${new Date().toISOString().slice(0,19)}.xlsx`);
+}
+
 
 }

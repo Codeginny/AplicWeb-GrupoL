@@ -4,4 +4,5 @@ export interface CreateProyectoDTO {
 
     idCliente: number;
 
+    fechaFinalizacionObjetivo?: Date;
 }

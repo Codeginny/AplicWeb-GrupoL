@@ -66,3 +66,91 @@
 .font-medium {
   font-weight: 500;
 }
+
+
+/* Contenedor de botones */
+.botones-accion {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Separador vertical */
+.separador-vertical {
+    width: 1px;
+    height: 30px;
+    background: linear-gradient(to bottom, transparent, #d1d5db, transparent);
+    margin: 0 4px;
+}
+
+/* Botón de exportar compacto */
+::ng-deep .btn-exportar-compacto {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    color: #4b5563 !important;
+    padding: 0.4rem !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+::ng-deep .btn-exportar-compacto .p-button-label {
+    display: none !important;
+}
+
+::ng-deep .btn-exportar-compacto .p-button-icon {
+    font-size: 1rem !important;
+    margin: 0 !important;
+    color: #10b981 !important;
+}
+
+/* Hover del botón exportar */
+::ng-deep .btn-exportar-compacto:hover {
+    background: #f0fdf4 !important;
+    border-color: #10b981 !important;
+    transform: scale(1.05);
+}
+
+::ng-deep .btn-exportar-compacto:hover .p-button-icon {
+    color: #059669 !important;
+}
+
+/* Ajuste del botón crear para que se vea mejor */
+::ng-deep .btn-crear {
+    padding: 0.6rem 1rem !important;
+    font-size: 0.875rem !important;
+}
+
+/* Botón de exportar CSV compacto - Color anaranjado */
+::ng-deep .btn-exportar-csv {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    color: #4b5563 !important;
+    padding: 0.4rem !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+::ng-deep .btn-exportar-csv .p-button-label {
+    display: none !important;
+}
+
+::ng-deep .btn-exportar-csv .p-button-icon {
+    font-size: 1rem !important;
+    margin: 0 !important;
+    color: #f97316 !important;  /* Color anaranjado */
+}
+
+/* Hover del botón CSV */
+::ng-deep .btn-exportar-csv:hover {
+    background: #fff7ed !important;  /* Fondo anaranjado muy claro */
+    border-color: #f97316 !important;
+    transform: scale(1.05);
+}
+
+::ng-deep .btn-exportar-csv:hover .p-button-icon {
+    color: #ea580c !important;  /* Anaranjado más oscuro al hover */
+}

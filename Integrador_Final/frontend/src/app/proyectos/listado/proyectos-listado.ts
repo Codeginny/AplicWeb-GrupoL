@@ -84,5 +84,59 @@ export class ProyectosListado implements OnInit {
   XLSX.writeFile(workbook, `proyectos_${new Date().toISOString().slice(0,19)}.xlsx`);
 }
 
+//exportacion a CSV
+exportarCSV(): void {
+  const proyectos = this.proyectos();
+  
+  // Mapear los datos a un formato plano para CSV
+  const datosCSV = proyectos.map(proyecto => ({
+    'Nombre': proyecto.nombre,
+    'Cliente': proyecto.cliente?.nombre || 'Sin asignar',
+    'Estado': proyecto.estado
+  }));
+
+  // Convertir a CSV
+  const csvData = this.convertirACSV(datosCSV);
+  
+  // Crear blob y descargar
+  const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });// Crear un nuevo Blob con el contenido CSV y el tipo MIME adecuado para archivos CSV. Esto prepara los datos para su descarga como un archivo.
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `proyectos_${new Date().toISOString().slice(0,19)}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+// Método auxiliar para convertir JSON a CSV
+private convertirACSV(data: any[]): string {
+  if (!data || data.length === 0) return '';
+  
+  // Obtener las cabeceras
+  const headers = Object.keys(data[0]);
+  
+  // Crear fila de cabeceras
+  const csvRows = [];
+  csvRows.push(headers.join(','));
+  
+  // Crear filas de datos
+  for (const row of data) {
+    const values = headers.map(header => {
+      let value = row[header]?.toString() || '';
+      // Escapar comillas dobles y envolver en comillas si contiene comas
+      value = value.replace(/"/g, '""');
+      if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+        value = `"${value}"`;
+      }
+      return value;
+    });
+    csvRows.push(values.join(','));
+  }
+  
+  return csvRows.join('\n');
+}
 
 }

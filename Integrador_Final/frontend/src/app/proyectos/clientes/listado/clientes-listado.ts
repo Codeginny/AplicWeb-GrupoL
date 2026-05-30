@@ -45,6 +45,8 @@ export class ClientesListado implements OnInit {
   refrescarClientes(): void {
     this.clientesListadoApiClient.buscarClientes().subscribe({
       next: (data) => {
+        console.log('Datos recibidos del backend:', data); // Ver la estructura completa de los datos
+        console.log('Primer cliente:', data[0]); //   Ver el primer cliente para confirmar la estructura
         this.clientes.set(data);
       },
       error: (error) => {
@@ -65,13 +67,6 @@ export class ClientesListado implements OnInit {
   abrirDialog(): void {
     this.dialogVisible.set(true);
   }
-
-
-
-
-
-
-
 
 
 

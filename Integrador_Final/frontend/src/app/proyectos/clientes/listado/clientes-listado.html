@@ -2,9 +2,10 @@
     header="Clientes" 
     [modal]="true" 
     [(visible)]="visible" 
-    [style]="{ width: '750px', 'max-width': '95vw' }"
+    [style]="{ width: '85vw', maxWidth: '1200px', minWidth: '800px' }"
     [draggable]="false"
-    [resizable]="false">
+    [resizable]="false"
+    [contentStyle]="{ 'padding': '1.5rem' }">
     
     <div class="page-container">
         <div class="page-header">
@@ -59,7 +60,7 @@
                     <tr>
                         <td class="font-medium">{{ cliente.nombre }}</td>
                         <td>
-                            <span class="badge-estado" [class.activo]="cliente.estado === 'Activo'">
+                            <span class="badge-estado" [class.activo]="cliente.estado === 'ACTIVO'">
                                 {{ cliente.estado }}
                             </span>
                         </td>

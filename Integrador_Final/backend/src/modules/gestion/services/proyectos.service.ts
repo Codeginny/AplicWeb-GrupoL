@@ -105,6 +105,7 @@ export class ProyectosService {
             tareaDto.id = t.id;
             tareaDto.descripcion = t.descripcion;
             tareaDto.estado = t.estado;
+            tareaDto.idMetaIntermedia = t.idMetaIntermedia; 
             tareas.push(tareaDto);
         }
 

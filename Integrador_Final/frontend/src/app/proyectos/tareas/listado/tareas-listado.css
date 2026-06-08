@@ -9,7 +9,6 @@
   gap: 2rem;
 }
 
-
 .card-resumen {
   background: var(--color-tarjeta);
   backdrop-filter: blur(8px);
@@ -31,12 +30,10 @@
   flex-direction: column;
   gap: 0.25rem;
 }
-
 .info-block.border-l {
   border-left: 1px solid var(--color-borde-suave);
   padding-left: 2rem;
 }
-
 .info-label {
   font-size: 0.7rem;
   text-transform: uppercase;
@@ -44,17 +41,12 @@
   color: var(--color-texto-suave);
   font-weight: 600;
 }
-
 .info-value {
   font-size: 1rem;
   color: var(--color-texto-oscuro);
   font-weight: 500;
 }
-
-.font-semibold {
-  font-weight: 600;
-}
-
+.font-semibold { font-weight: 600; }
 
 .page-header {
   display: flex;
@@ -63,7 +55,6 @@
   flex-wrap: wrap;
   gap: 1rem;
 }
-
 .page-title {
   font-size: 1.8rem;
   font-weight: 550;
@@ -71,37 +62,136 @@
   color: #2b2a27;
   margin: 0 0 0.25rem 0;
 }
-
 .page-subtitle {
   font-size: 0.9rem;
   color: #7a6e63;
   margin: 0;
 }
+.header-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
 
+/* Contenedor de la tabla: scroll externo */
 .tabla-wrapper {
   background: var(--color-tarjeta);
   backdrop-filter: blur(8px);
   border-radius: 48px 24px 48px 24px;
   border: 1px solid var(--color-borde-suave);
   box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow-x: auto;
+  max-height: calc(100vh - 380px);
+  overflow-y: auto;
 }
 
-::ng-deep .p-datatable {
-  border-radius: inherit;
+/* Tabla sin scrollable de PrimeNG */
+.p-datatable {
+  width: 100%;
+  border-collapse: collapse;
+}
+.p-datatable-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.text-right {
-  text-align: right;
+/* Estructura de celdas: cada celda es un contenedor flex */
+.p-datatable-thead > tr > th,
+.p-datatable-tbody > tr > td {
+  padding: 0 !important;               /* Eliminamos padding para usar el div interno */
+  border-bottom: 1px solid var(--color-borde-suave);
 }
 
-.table-actions {
+.celda-contenido {
+  padding: 0.85rem 1rem;               /* El padding se aplica a este div */
+  min-height: 4.2rem;                 /* Altura mínima uniforme */
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Para la celda de acciones, alineamos a la derecha */
+.table-actions .celda-contenido {
   justify-content: flex-end;
 }
 
-.font-medium {
+/* Aseguramos que el p-select ocupe todo el ancho y se centre verticalmente */
+.p-select {
+  width: 100%;
+  height: auto !important;
+  min-height: 2.5rem;
+  padding: 0 0.75rem !important;
+  font-size: 0.85rem !important;
+  display: flex;
+  align-items: center;
+}
+
+/* Anchos fijos de columnas */
+.p-datatable-thead th:first-child,
+.p-datatable-tbody td:first-child { width: 30%; }
+.p-datatable-thead th:nth-child(2),
+.p-datatable-tbody td:nth-child(2) { width: 35%; }
+.p-datatable-thead th:nth-child(3),
+.p-datatable-tbody td:nth-child(3) { width: 20%; }
+.p-datatable-thead th:last-child,
+.p-datatable-tbody td:last-child { width: 15%; }
+
+/* Estilo de cabecera */
+.p-datatable-thead > tr > th {
+  background: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+  color: var(--color-texto-suave);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+.p-datatable-thead .celda-contenido {
+  padding: 0.85rem 1rem;
+}
+
+/* Hover de fila */
+.p-datatable-tbody > tr:hover > td {
+  background: #fef0e2;
+}
+
+/* Botones de acción */
+.table-actions {
+  /* No se agregan reglas extra */
+}
+
+/* Badges de estado */
+.badge-estado {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: 40px;
+  font-size: 0.75rem;
   font-weight: 500;
-  color: var(--color-texto-oscuro);
+  background-color: #f0ebe3;
+  color: #5f5b55;
+}
+.badge-estado.estado-activo,
+.badge-estado.activo {
+  background: #e7dfcd;
+  color: #8b6b3d;
+}
+.badge-estado.estado-completado {
+  background: #dde5da;
+  color: #4a5e3a;
+}
+.badge-estado.estado-baja {
+  background: #e8d8d6;
+  color: #a55a4a;
+}
+
+.tabla-vacia {
+  text-align: center;
+  padding: 3rem 1rem !important;
+  color: #bcaca0;
+}
+.empty-icon {
+  font-size: 2.5rem;
+  color: #d6c8b8;
+  margin-bottom: 1rem;
+  display: block;
 }

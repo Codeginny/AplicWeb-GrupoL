@@ -1,0 +1,48 @@
+<p-dialog
+    header="Metas Intermedias"
+    [modal]="true"
+    [(visible)]="visible"
+    [style]="{ width: '700px' }"
+    [draggable]="false"
+    [styleClass]="'dialog-metas'">
+    
+    <div class="page-header" style="margin-bottom: 1rem;">
+        <div></div>
+        <p-button icon="pi pi-plus" label="Nueva meta" styleClass="btn-primario" (click)="crearMetaIntermedia()"></p-button>
+    </div>
+
+    <div class="tabla-wrapper">
+        <p-table #dt [value]="metas()" [scrollable]="true" scrollHeight="400px" >
+            <ng-template #header>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Tareas asociadas</th>
+                    <th style="width: 100px">Acciones</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-meta>
+                <tr>
+                    <td class="font-medium">{{ meta.nombre }}</td>
+                    <td>{{ meta.descripcion || "—" }}</td>
+                    <td>{{ meta.tareasCount }}</td>
+                    <td class="table-actions">
+                        <p-button icon="pi pi-pencil" [text]="true" (click)="editarMetaIntermedia(meta)" pTooltip="Editar"></p-button>
+                        <p-button icon="pi pi-trash" [text]="true" severity="danger" (click)="eliminarMetaIntermedia(meta)" pTooltip="Eliminar"></p-button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+                <tr><td colspan="4">No hay metas definidas para este proyecto.</td></tr>
+            </ng-template>
+        </p-table>
+    </div>
+</p-dialog>
+
+<app-gestion-meta-intermedia
+    [(visible)]="dialogGestionVisible"
+    [idProyecto]="idProyecto()"
+    [(metaSeleccionada)]="metaParaEditar"
+    (metaGuardada)="cargarMetasIntermedias()"
+    (onHide)="onGestionClosed()">
+</app-gestion-meta-intermedia>

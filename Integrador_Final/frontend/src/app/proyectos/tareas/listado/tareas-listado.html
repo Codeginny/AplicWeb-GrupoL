@@ -25,54 +25,78 @@
                 <h2 class="page-title">Tareas</h2>
                 <p class="page-subtitle">Tareas del proyecto.</p>
             </div>
-            <p-button 
-                id="boton-crear-tarea" 
-                icon="pi pi-plus" 
-                label="Crear Tarea" 
-                styleClass="btn-primario"
-                (click)="crearTarea()">
-            </p-button>
+            <div class="header-buttons">
+                <p-button 
+                    icon="pi pi-tags" 
+                    label="Gestionar Metas" 
+                    severity="secondary" 
+                    [text]="true"
+                    styleClass="btn-primario"
+                    (click)="abrirGestionMetasIntermedias()">
+                </p-button>
+                <p-button 
+                    id="boton-crear-tarea" 
+                    icon="pi pi-plus" 
+                    label="Crear Tarea" 
+                    styleClass="btn-primario"
+                    (click)="crearTarea()">
+                </p-button>
+            </div>
         </div>
 
-        <!-- Tabla de tareas -->
+    
         <div class="tabla-wrapper">
             <p-table 
-                id="tabla" 
                 [value]="tareas()" 
-                [scrollable]="true"
-                scrollHeight="calc(100vh - 380px)">
+                [resizableColumns]="false"
+                class="tabla-fija">
                 <ng-template #header>
                     <tr>
-                        <th>Descripción</th>
-                        <th>Estado</th>
-                        <th class="text-right">Acciones</th>
+                        <th class="col-desc">Descripción</th>
+                        <th class="col-meta">Meta Intermedia</th>
+                        <th class="col-estado">Estado</th>
+                        <th class="text-right col-acciones">Acciones</th>
                     </tr>
                 </ng-template>
                 <ng-template #body let-tarea>
                     <tr>
-                        <td class="font-medium">{{ tarea.descripcion }}</td>
-                        <td>
+                        <td class="col-desc">{{ tarea.descripcion }}</td>
+                        <td class="col-meta">
+                            <p-select 
+                                [options]="metasIntermediasDisponibles()" 
+                                optionLabel="nombre" 
+                                optionValue="id" 
+                                [ngModel]="tarea.idMetaIntermedia" 
+                                (ngModelChange)="asignarMetaIntermedia(tarea, $event)"
+                                [showClear]="true"
+                                placeholder="Sin meta">
+                            </p-select>
+                        </td>
+                        <td class="col-estado">
                             <span class="badge-estado" 
-                            [class.estado-activo]="tarea.estado === 'PENDIENTE'"
-                            [class.estado-completado]="tarea.estado === 'FINALIZADA'"
-                            [class.estado-baja]="tarea.estado === 'BAJA'">
-                        {{ tarea.estado }}
-                        </span>
+                                [class.estado-activo]="tarea.estado === 'PENDIENTE'"
+                                [class.estado-completado]="tarea.estado === 'FINALIZADA'"
+                                [class.estado-baja]="tarea.estado === 'BAJA'">
+                                {{ tarea.estado }}
+                            </span>
                         </td>
                         <td class="text-right table-actions">
+                             <div class="celda-contenido acciones">
                             <p-button 
                                 icon="pi pi-pencil" 
                                 [text]="true"
+                                severity="secondary"
                                 pTooltip="Editar Tarea" 
                                 tooltipPosition="top"
                                 (click)="editarTarea(tarea)">
                             </p-button>
+                        </div>
                         </td>
                     </tr>
                 </ng-template>
                 <ng-template #emptymessage>
                     <tr>
-                        <td colspan="3" class="tabla-vacia">
+                        <td colspan="4" class="tabla-vacia">
                             <i class="pi pi-check-square empty-icon"></i>
                             <p>No hay tareas creadas para este proyecto todavía.</p>
                         </td>
@@ -84,3 +108,10 @@
 </app-template>
 
 <app-gestion-tarea [(visible)]="dialogVisible" [idProyecto]="idProyecto()" [(tareaSeleccionada)]="tareaSeleccionada"></app-gestion-tarea>
+
+<app-listado-meta-intermedia
+    [(visible)]="dialogMetasIntermediasVisible"
+    [idProyecto]="idProyecto()!"
+    (metasCambiadas)="cargarMetasIntermedias()"
+    (onHide)="onMetasIntermediasGestionClosed()">
+</app-listado-meta-intermedia>

@@ -5,4 +5,5 @@ export interface ListProyectoDTO{
     nombre: string;
     estado: string;
     cliente: ListClienteDTO;
+    fechaFinalizacionObjetivo: Date | null;
 }

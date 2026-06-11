@@ -57,17 +57,16 @@ export class GestionProyecto {
     constructor() {
         let previousVisible = false;
 
-        // 1. UNIFICAMOS LA LÓGICA DE APERTURA (CREAR Y EDITAR) EN UN SOLO EFFECT
         effect(() => {
             const currentlyVisible = this.visible();
-            // Guardamos el valor actual del proyecto
+            
             const proyecto = this.proyectoSeleccionado(); 
 
-            // Solo entramos aquí en el instante EXACTO en que se abre el modal
+
             if (currentlyVisible && !previousVisible) {
                 
                 if (proyecto) {
-                    // MODO EDICIÓN: Llenamos el formulario UNA SOLA VEZ
+                  
                     this.form.patchValue({
                         nombre: proyecto.nombre,
                         cliente: proyecto.cliente ? proyecto.cliente.id : null,
@@ -75,7 +74,7 @@ export class GestionProyecto {
                         fechaFinalizacionObjetivo: proyecto.fechaFinalizacionObjetivo
                     });
                 } else {
-                    // MODO CREACIÓN: Limpiamos el formulario UNA SOLA VEZ
+                
                     this.form.reset({
                         nombre: "",
                         cliente: null,
@@ -85,11 +84,11 @@ export class GestionProyecto {
                 }
             }
 
-            // Actualizamos el estado para la próxima evaluación
+            
             previousVisible = currentlyVisible;
         });
 
-        // 2. ESTE EFFECT SE MANTIENE IGUAL
+        
         effect(() => {
             if (!this.dialogClientesVisible()) {
                 this.refrescarClientes();

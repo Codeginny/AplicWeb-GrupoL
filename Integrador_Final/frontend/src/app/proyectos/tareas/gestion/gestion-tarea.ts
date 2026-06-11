@@ -81,7 +81,8 @@ export class GestionTarea {
         if (this.tareaSeleccionada()) {
             const dto: UpdateTareaDto = {
                 descripcion: formRawValue.descripcion,
-                estado: formRawValue.estado
+                estado: formRawValue.estado,
+                idMetaIntermedia: this.tareaSeleccionada()?.idMetaIntermedia || null
             };
             this.gestionTareaApiClient.actualizarTarea(this.idProyecto(), this.tareaSeleccionada()?.id!, dto).subscribe({
                 next: () => {

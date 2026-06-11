@@ -13,6 +13,6 @@ export class UpdateTareaDto extends PartialType(CreateTareaDto) {
 
     @ApiProperty({ required: false, nullable: true })
     @IsOptional()
-    @Transform(({ value }) => value === null ? null : Number(value))
+    @Transform(({ value }) => value === null || value === undefined ? value : Number(value))
     idMetaIntermedia?: number | null;
 }

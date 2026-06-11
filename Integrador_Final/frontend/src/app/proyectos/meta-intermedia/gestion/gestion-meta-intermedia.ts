@@ -36,14 +36,16 @@ export class GestionMetaIntermedia {
 
     constructor() {
         effect(() => {
-            const meta = this.metaSeleccionada();
-            if (meta) {
-                this.form.patchValue({
-                    nombre: meta.nombre,
-                    descripcion: meta.descripcion || ""
-                });
-            } else {
-                this.form.reset({ nombre: "", descripcion: "" });
+            if (this.visible()) {
+                const meta = this.metaSeleccionada();
+                if (meta) {
+                    this.form.patchValue({
+                        nombre: meta.nombre,
+                        descripcion: meta.descripcion || ""
+                    });
+                } else {
+                    this.form.reset({ nombre: "", descripcion: "" });
+                }
             }
         });
     }
@@ -87,6 +89,7 @@ export class GestionMetaIntermedia {
     }
 
     cerrar(): void {
+        this.form.reset({ nombre: "", descripcion: "" }); 
         this.metaSeleccionada.set(null);
         this.visible.set(false);
     }

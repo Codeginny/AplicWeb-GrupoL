@@ -55,33 +55,41 @@ export class GestionProyecto {
     });
 
     constructor() {
-        effect(() => {
-            const proyecto = this.proyectoSeleccionado();
-            if (proyecto) {
-                this.form.patchValue({
-                    nombre: proyecto.nombre,
-                    cliente: proyecto.cliente,
-                    estado: proyecto.estado,
-                    fechaFinalizacionObjetivo: proyecto.fechaFinalizacionObjetivo
-                });
-            }
-        });
-
         let previousVisible = false;
+
+        // 1. UNIFICAMOS LA LÓGICA DE APERTURA (CREAR Y EDITAR) EN UN SOLO EFFECT
         effect(() => {
             const currentlyVisible = this.visible();
-            if (currentlyVisible && !previousVisible && !this.proyectoSeleccionado()) {
-                // Se acaba de abrir el diálogo para crear nuevo proyecto
-                this.form.reset({
-                    nombre: "",
-                    cliente: null,
-                    estado: EstadosProyectosEnum.ACTIVO,
-                    fechaFinalizacionObjetivo: null
-                });
+            // Guardamos el valor actual del proyecto
+            const proyecto = this.proyectoSeleccionado(); 
+
+            // Solo entramos aquí en el instante EXACTO en que se abre el modal
+            if (currentlyVisible && !previousVisible) {
+                
+                if (proyecto) {
+                    // MODO EDICIÓN: Llenamos el formulario UNA SOLA VEZ
+                    this.form.patchValue({
+                        nombre: proyecto.nombre,
+                        cliente: proyecto.cliente ? proyecto.cliente.id : null,
+                        estado: proyecto.estado,
+                        fechaFinalizacionObjetivo: proyecto.fechaFinalizacionObjetivo
+                    });
+                } else {
+                    // MODO CREACIÓN: Limpiamos el formulario UNA SOLA VEZ
+                    this.form.reset({
+                        nombre: "",
+                        cliente: null,
+                        estado: EstadosProyectosEnum.ACTIVO,
+                        fechaFinalizacionObjetivo: null
+                    });
+                }
             }
+
+            // Actualizamos el estado para la próxima evaluación
             previousVisible = currentlyVisible;
         });
 
+        // 2. ESTE EFFECT SE MANTIENE IGUAL
         effect(() => {
             if (!this.dialogClientesVisible()) {
                 this.refrescarClientes();
@@ -121,7 +129,7 @@ export class GestionProyecto {
         if (this.proyectoSeleccionado()) {
             const dto: UpdateProyectoDto = {
                 nombre: formRawValue.nombre,
-                idCliente: formRawValue.cliente ? formRawValue.cliente.id : null,
+                idCliente: formRawValue.cliente,
                 estado: formRawValue.estado,
                 fechaFinalizacionObjetivo: formRawValue.fechaFinalizacionObjetivo || null
             };
@@ -144,7 +152,7 @@ export class GestionProyecto {
         } else {
             const dto: CreateProyectoDTO = {
                 nombre: formRawValue.nombre,
-                idCliente: formRawValue.cliente ? formRawValue.cliente.id : null,
+                idCliente: formRawValue.cliente,
                 fechaFinalizacionObjetivo: formRawValue.fechaFinalizacionObjetivo || null// Si no se proporciona una fecha, se envía como null para que el backend lo maneje correctamente, sino se enviaría como undefined y el backend no lo interpretaría como una ausencia de valor.
             };
             this.gestionProyectoApiClient.crearProyecto(dto).subscribe({

@@ -23,14 +23,16 @@
             <div class="campo-grupo">
                 <label class="label-moderno">Cliente</label>
                 <div class="input-combinado">
-                    <p-select
-                    class="selector-cliente"
-                    formControlName="cliente"
-                    [options]="clientes()"
-                    optionLabel="nombre"
-                    [placeholder]="'Seleccionar cliente'"
-                    [showClear]="true"
-                    ></p-select>
+                   <p-select
+                        class="selector-cliente"
+                        formControlName="cliente"
+                        [options]="clientes()"
+                        optionLabel="nombre"
+                        optionValue="id" 
+                        [placeholder]="'Seleccionar cliente'"
+                        [showClear]="true"
+                        appendTo="body">
+                    </p-select>
                     <button 
                     type="button"
                     id="boton-gestionar-clientes" 

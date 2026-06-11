@@ -9,6 +9,53 @@
   gap: 2rem;
 }
 
+
+.card-resumen {
+  background: var(--color-tarjeta);
+  backdrop-filter: blur(8px);
+  border-radius: 48px 24px 48px 24px;
+  border: 1px solid var(--color-borde-suave);
+  box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem 2rem;
+}
+
+.resumen-info-grid {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.info-block.border-l {
+  border-left: 1px solid var(--color-borde-suave);
+  padding-left: 2rem;
+}
+
+.info-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-texto-suave);
+  font-weight: 600;
+}
+
+.info-value {
+  font-size: 1rem;
+  color: var(--color-texto-oscuro);
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -38,19 +85,11 @@
   border: 1px solid var(--color-borde-suave);
   box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  transition: all 0.2s;
 }
-
 
 ::ng-deep .p-datatable {
   border-radius: inherit;
 }
-
-::ng-deep .p-datatable-table {
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
 
 .text-right {
   text-align: right;
@@ -62,19 +101,7 @@
   justify-content: flex-end;
 }
 
-
 .font-medium {
   font-weight: 500;
+  color: var(--color-texto-oscuro);
 }
-
-.badge-plazo {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-.plazo-retrasado { background: #fee2e2; color: #b91c1c; }
-.plazo-proximo { background: #ffedd5; color: #9a3412; }
-.plazo-al-dia { background: #dcfce7; color: #166534; }
-.plazo-completado { background: #e5e7eb; color: #374151; }

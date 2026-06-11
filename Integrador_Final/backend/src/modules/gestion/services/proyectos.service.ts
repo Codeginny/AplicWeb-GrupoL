@@ -69,6 +69,7 @@ export class ProyectosService {
             dto.id = p.id;
             dto.nombre = p.nombre;
             dto.estado = p.estado;
+            dto.fechaFinalizacionObjetivo = p.fechaFinalizacionObjetivo;
             if (p.cliente) {
                 dto.cliente = new ListClienteDTO();
                 dto.cliente.id = p.cliente.id
@@ -93,6 +94,8 @@ export class ProyectosService {
         const dto = new ProyectoDTO();
         dto.nombre = proyecto.nombre;
         dto.estado = proyecto.estado;
+        dto.fechaFinalizacionObjetivo = proyecto.fechaFinalizacionObjetivo;
+        
         if (proyecto.cliente) {
             dto.cliente = proyecto.cliente.nombre;
         }
@@ -102,6 +105,7 @@ export class ProyectosService {
             tareaDto.id = t.id;
             tareaDto.descripcion = t.descripcion;
             tareaDto.estado = t.estado;
+            tareaDto.idMetaIntermedia = t.idMetaIntermedia; 
             tareas.push(tareaDto);
         }
 

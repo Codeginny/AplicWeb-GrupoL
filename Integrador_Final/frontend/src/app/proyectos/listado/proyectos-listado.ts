@@ -9,12 +9,13 @@ import { TooltipModule } from 'primeng/tooltip';
 import { GestionProyecto } from "../gestion/gestion-proyecto";
 import * as XLSX from 'xlsx';
 
+import { DatePipe } from "@angular/common";
 
 @Component({
   selector: "app-proyectos-listado",
   templateUrl: "./proyectos-listado.html",
   styleUrls: ["./proyectos-listado.css"],
-  imports: [TableModule, ButtonModule, Template, TooltipModule, GestionProyecto]
+  imports: [TableModule, ButtonModule, Template, TooltipModule, GestionProyecto, DatePipe]
 })
 export class ProyectosListado implements OnInit {
 
@@ -138,5 +139,40 @@ private convertirACSV(data: any[]): string {
   
   return csvRows.join('\n');
 }
+  getTextoPlazo(proyecto: ListProyectoDTO): string {
+    if (!proyecto.fechaFinalizacionObjetivo) return 'Al día';
+    if (proyecto.estado === 'FINALIZADO') return 'Completado'; 
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const objetivo = new Date(proyecto.fechaFinalizacionObjetivo);
+    objetivo.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.ceil((objetivo.getTime() - hoy.getTime()) / (1000 * 3600 * 24));
+
+    if (diffDays < 0) {
+      const retraso = Math.abs(diffDays);
+      return `Retrasado ${retraso} día${retraso !== 1 ? 's' : ''}`;
+    }
+    if (diffDays <= 7) {
+      return `Próximo a finalizar (${diffDays} día${diffDays !== 1 ? 's' : ''})`;
+    }
+    return 'Al día';
+  }
+
+  getClasePlazo(proyecto: ListProyectoDTO): string {
+    if (!proyecto.fechaFinalizacionObjetivo) return 'plazo-al-dia';
+    if (proyecto.estado === 'FINALIZADO') return 'plazo-completado';
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const objetivo = new Date(proyecto.fechaFinalizacionObjetivo);
+    objetivo.setHours(0, 0, 0, 0);
+    const diffDays = Math.ceil((objetivo.getTime() - hoy.getTime()) / (1000 * 3600 * 24));
+
+    if (diffDays < 0) return 'plazo-retrasado';
+    if (diffDays <= 7) return 'plazo-proximo';
+    return 'plazo-al-dia';
+  }
 
 }

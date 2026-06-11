@@ -49,6 +49,8 @@
                     <tr>
                         <th>Nombre</th>
                         <th>Cliente</th>
+                        <th>Fin Objetivo</th>
+                        <th>Plazo</th>
                         <th>Estado</th>
                         <th class="text-right">Acciones</th>
                     </tr>
@@ -60,6 +62,12 @@
                             <span class="cliente-tag">
                                 <i class="pi pi-briefcase text-xs"></i>
                                 {{ proyecto.cliente ? proyecto.cliente.nombre : 'Sin asignar' }}
+                            </span>
+                        </td>
+                        <td>{{ proyecto.fechaFinalizacionObjetivo | date:'dd/MM/yyyy'  }}</td>
+                        <td>
+                            <span class="badge-plazo" [class]="getClasePlazo(proyecto)">
+                                {{ getTextoPlazo(proyecto) }}
                             </span>
                         </td>
                         <td>

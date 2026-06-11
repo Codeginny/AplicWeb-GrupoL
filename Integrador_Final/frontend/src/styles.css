@@ -511,3 +511,61 @@ input:focus {
 .p-toast-message.p-toast-message-warn .p-toast-summary {
   color: #b17d2e !important;
 }
+
+
+
+.p-datatable .p-datatable-tbody > tr > td {
+    padding: 1rem 1rem !important;  
+    vertical-align: middle !important;
+    line-height: 1.2 !important;
+    /*height: 4rem; */
+}
+
+.table-actions {
+    display: flex !important;
+    gap: 0.5rem !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important; 
+    white-space: nowrap !important;
+}
+
+.table-actions .p-button {
+    width: 2rem !important;
+    height: 2rem !important;
+    min-width: 2rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    transition: none !important; 
+}
+
+.table-actions .p-button .p-button-icon {
+    font-size: 1rem !important;
+    margin: 0 !important;
+}
+
+
+.p-datatable thead tr th:last-child,
+.p-datatable tbody tr td:last-child {
+    width: 100px !important;
+    min-width: 100px !important;
+    max-width: 100px !important;
+    text-align: right !important;
+}
+
+
+.p-datatable-scrollable .p-datatable-scrollable-body {
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+}
+
+.p-datatable-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+}
+
+.p-datatable-tbody td {
+    white-space: normal;   /* Permite que el texto haga wrap */
+    word-break: break-word;
+}

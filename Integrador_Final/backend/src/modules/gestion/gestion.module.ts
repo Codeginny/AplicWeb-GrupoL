@@ -10,13 +10,16 @@ import { TareasService } from "./services/tarea.service";
 import { ClientesService } from "./services/clientes.service";
 import { ProyectosService } from "./services/proyectos.service";
 import { AuthModule } from "../auth/auth.module";
+import { MetasIntermediasController } from "./controllers/metas-intermedias.controller";
+import { MetasIntermediasService } from "./services/metas-intermedias.service";
+import { MetaIntermedia } from "./entities/meta-intermedia.entity";
 
 @Module({
-    controllers: [ClientesController,ProyectosController,TareasController],
-    providers: [TareasService,ClientesService,ProyectosService],
+    controllers: [ClientesController,ProyectosController,TareasController, MetasIntermediasController],
+    providers: [TareasService,ClientesService,ProyectosService, MetasIntermediasService],
     exports: [],
     imports: [// Agrego aquí tus entidades, por ejemplo: Cliente, Proyecto, Tarea ||-> AGREGO para GUARD TMB "AuthModule" -<
-        TypeOrmModule.forFeature([Tarea, Cliente,Proyecto]),
+        TypeOrmModule.forFeature([Tarea, Cliente,Proyecto, MetaIntermedia]),
         AuthModule
     ]
 })

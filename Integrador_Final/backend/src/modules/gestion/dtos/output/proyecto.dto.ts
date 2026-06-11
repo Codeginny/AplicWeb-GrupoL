@@ -16,4 +16,7 @@ export class ProyectoDTO {
     @ApiProperty()
     tareas!: ListTareaDTO[];
 
+    @ApiProperty()
+    fechaFinalizacionObjetivo?: Date | null;
+
 }

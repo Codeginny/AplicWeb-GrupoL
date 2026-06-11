@@ -6,17 +6,24 @@ import { ButtonModule } from "primeng/button";
 import { Template } from "../../../template/template";
 import { TooltipModule } from 'primeng/tooltip';
 import { GestionTarea } from "../gestion/gestion-tarea";
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from "@angular/router";
 import { ProyectoApiClient } from "./proyecto-api-client";
 import { ProyectoDTO } from "./proyecto-dto";
 import * as XLSX from 'xlsx';
 
+import { GestionMetaIntermediaApiClient } from "../../meta-intermedia/gestion/gestion-meta-intermedia-api-client";
+import { ListMetaIntermediaDTO } from "../../meta-intermedia/listado/list-meta-intermedia.dto";
+import { UpdateTareaDto } from "../gestion/update-tarea-dto";
+import { GestionTareaApiClient } from "../gestion/gestion-tarea-api-client";
+import { SelectModule } from 'primeng/select';
+import { ListMetaIntermedia } from "../../meta-intermedia/listado/list-meta-intermedia";
 
 @Component({
   selector: "app-tareas-listado",
   templateUrl: "./tareas-listado.html",
   styleUrls: ["./tareas-listado.css"],
-  imports: [TableModule, ButtonModule, Template, TooltipModule, GestionTarea]
+  imports: [TableModule, ButtonModule, Template, TooltipModule, GestionTarea, FormsModule, SelectModule, ListMetaIntermedia]
 })
 export class TareasListado implements OnInit {
 
@@ -24,13 +31,21 @@ export class TareasListado implements OnInit {
 
   private readonly proyectoApiClient: ProyectoApiClient = inject(ProyectoApiClient);
 
+  private readonly gestionTarea: GestionTareaApiClient = inject(GestionTareaApiClient);
+
+  private readonly metasIntermediasApiClient = inject(GestionMetaIntermediaApiClient);
+
   proyecto: WritableSignal<ProyectoDTO | null> = signal(null);
 
   tareas: Signal<ListTareaDTO[]> = computed(() => {
     return this.proyecto()?.tareas || [];
   });
 
+  metasIntermediasDisponibles = signal<ListMetaIntermediaDTO[]>([]);
+
   dialogVisible: WritableSignal<boolean> = signal(false);
+
+  dialogMetasIntermediasVisible = signal(false);
 
   tareaSeleccionada: WritableSignal<ListTareaDTO | null> = signal<ListTareaDTO | null>(null);
 
@@ -46,6 +61,12 @@ export class TareasListado implements OnInit {
         this.refreshProyecto();
       }
     });
+    effect(() => {
+      if (this.idProyecto()) {
+        this.cargarMetasIntermedias();
+      }
+    });
+
     this.idProyecto.set(Number(this.route.snapshot.paramMap.get('id')));
 
     if (this.idProyecto() === null) {
@@ -67,6 +88,13 @@ export class TareasListado implements OnInit {
       error: (error) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al obtener el proyecto' });
       }
+    });
+  }
+
+   cargarMetasIntermedias(): void {
+    this.metasIntermediasApiClient.obtenerMetasIntermedias(this.idProyecto()!).subscribe({
+      next: (data) => this.metasIntermediasDisponibles.set(data),
+      error: () => console.error("Error cargando metas intermedias")
     });
   }
 
@@ -160,4 +188,38 @@ private convertirACSV(data: any[]): string {
   return csvRows.join('\n');
 }
   
+  asignarMetaIntermedia(tarea: ListTareaDTO, idMeta: number | null): void {
+    
+    const dto = { idMetaIntermedia: idMeta };
+    console.log("Asignando meta intermedia", dto); 
+
+    this.gestionTarea.actualizarTarea(this.idProyecto()!, tarea.id, dto).subscribe({
+        next: () => {
+          
+            const proyectoActual = this.proyecto();
+            if (proyectoActual) {
+                const tareasActualizadas = proyectoActual.tareas.map(t =>
+                    t.id === tarea.id ? { ...t, idMetaIntermedia: idMeta } : t
+                );
+                this.proyecto.set({ ...proyectoActual, tareas: tareasActualizadas });
+            }
+            this.messageService.add({ severity: 'success', summary: 'Actualizada', detail: 'Meta asignada correctamente.' });
+            this.cargarMetasIntermedias(); 
+        },
+        error: (err) => {
+            console.error(err);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || 'No se pudo asignar la meta.' });
+        }
+    });
+  }
+
+
+  abrirGestionMetasIntermedias(): void {
+    this.dialogMetasIntermediasVisible.set(true);
+  }
+
+  onMetasIntermediasGestionClosed(): void {
+    this.cargarMetasIntermedias();
+  }
+
 }

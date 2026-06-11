@@ -50,7 +50,8 @@ export class GestionProyecto {
     readonly form: FormGroup = new FormGroup({
         nombre: new FormControl("", [Validators.required]),
         cliente: new FormControl(null),
-        estado: new FormControl(null)
+        estado: new FormControl(null),
+        fechaFinalizacionObjetivo: new FormControl(null)
     });
 
     constructor() {
@@ -59,14 +60,16 @@ export class GestionProyecto {
                 this.form.patchValue({
                     nombre: this.proyectoSeleccionado()?.nombre,
                     cliente: this.proyectoSeleccionado()?.cliente,
-                    estado: this.proyectoSeleccionado()?.estado
+                    estado: this.proyectoSeleccionado()?.estado,
+                    fechaFinalizacionObjetivo: this.proyectoSeleccionado()?.fechaFinalizacionObjetivo
                 });
             }
             else {
                 this.form.reset({
                     nombre: "",
                     cliente: null,
-                    estado: EstadosProyectosEnum.ACTIVO
+                    estado: EstadosProyectosEnum.ACTIVO,
+                    fechaFinalizacionObjetivo: null
                 });
             }
         });
@@ -112,7 +115,8 @@ export class GestionProyecto {
             const dto: UpdateProyectoDto = {
                 nombre: formRawValue.nombre,
                 idCliente: formRawValue.cliente ? formRawValue.cliente.id : null,
-                estado: formRawValue.estado
+                estado: formRawValue.estado,
+                fechaFinalizacionObjetivo: formRawValue.fechaFinalizacionObjetivo || null
             };
             this.gestionProyectoApiClient.actualizarProyecto(this.proyectoSeleccionado()?.id!, dto).subscribe({
                 next: () => {

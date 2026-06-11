@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateProyectoDto {
 
@@ -13,5 +13,10 @@ export class CreateProyectoDto {
     //Los proyectos pueden no estar asociados a un cliente, por lo que el ID del cliente es opcional
     @IsOptional()// El ID del cliente es opcional, ya que un proyecto puede no estar asociado a un cliente
     idCliente!: number;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsDateString()
+    fechaFinalizacionObjetivo?: Date;
 
 }

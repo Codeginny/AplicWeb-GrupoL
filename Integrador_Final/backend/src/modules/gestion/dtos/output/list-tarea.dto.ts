@@ -11,5 +11,7 @@ export class ListTareaDTO {
 
     @ApiProperty()
     estado!: EstadosTareasEnum;
-
+    
+    @ApiProperty({ required: false, nullable: true }) 
+    idMetaIntermedia?: number | null;
 }

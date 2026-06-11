@@ -56,15 +56,22 @@ export class GestionProyecto {
 
     constructor() {
         effect(() => {
-            if (this.proyectoSeleccionado()) {
+            const proyecto = this.proyectoSeleccionado();
+            if (proyecto) {
                 this.form.patchValue({
-                    nombre: this.proyectoSeleccionado()?.nombre,
-                    cliente: this.proyectoSeleccionado()?.cliente,
-                    estado: this.proyectoSeleccionado()?.estado,
-                    fechaFinalizacionObjetivo: this.proyectoSeleccionado()?.fechaFinalizacionObjetivo
+                    nombre: proyecto.nombre,
+                    cliente: proyecto.cliente,
+                    estado: proyecto.estado,
+                    fechaFinalizacionObjetivo: proyecto.fechaFinalizacionObjetivo
                 });
             }
-            else {
+        });
+
+        let previousVisible = false;
+        effect(() => {
+            const currentlyVisible = this.visible();
+            if (currentlyVisible && !previousVisible && !this.proyectoSeleccionado()) {
+                // Se acaba de abrir el diálogo para crear nuevo proyecto
                 this.form.reset({
                     nombre: "",
                     cliente: null,
@@ -72,6 +79,7 @@ export class GestionProyecto {
                     fechaFinalizacionObjetivo: null
                 });
             }
+            previousVisible = currentlyVisible;
         });
 
         effect(() => {
@@ -79,7 +87,6 @@ export class GestionProyecto {
                 this.refrescarClientes();
             }
         });
-
     }
 
     ngOnInit(): void {
@@ -137,7 +144,8 @@ export class GestionProyecto {
         } else {
             const dto: CreateProyectoDTO = {
                 nombre: formRawValue.nombre,
-                idCliente: formRawValue.cliente ? formRawValue.cliente.id : null
+                idCliente: formRawValue.cliente ? formRawValue.cliente.id : null,
+                fechaFinalizacionObjetivo: formRawValue.fechaFinalizacionObjetivo || null// Si no se proporciona una fecha, se envía como null para que el backend lo maneje correctamente, sino se enviaría como undefined y el backend no lo interpretaría como una ausencia de valor.
             };
             this.gestionProyectoApiClient.crearProyecto(dto).subscribe({
                 next: () => {

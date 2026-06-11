@@ -1,4 +1,4 @@
-
+<app-template>
     <div class="page-container">
         
         <div class="card-resumen">
@@ -61,11 +61,9 @@
                     tooltipPosition="bottom"
                     (click)="exportarCSV()">
                 </p-button>
-                <p-button
-                    styleClass="btn-primario"
-                    (click)="crearTarea()">
-                </p-button>
+               
             </div>
+        </div>
         </div>
 
     
@@ -129,7 +127,7 @@
             </p-table>
         </div>
     </div>
-
+</app-template>
 
 <app-gestion-tarea [(visible)]="dialogVisible" [idProyecto]="idProyecto()" [(tareaSeleccionada)]="tareaSeleccionada"></app-gestion-tarea>
 

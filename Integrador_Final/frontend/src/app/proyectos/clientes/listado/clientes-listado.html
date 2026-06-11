@@ -2,23 +2,44 @@
     header="Clientes" 
     [modal]="true" 
     [(visible)]="visible" 
-    [style]="{ width: '750px', 'max-width': '95vw' }"
+    [style]="{ width: '85vw', maxWidth: '1200px', minWidth: '800px' }"
     [draggable]="false"
-    [resizable]="false">
+    [resizable]="false"
+    [contentStyle]="{ 'padding': '1.5rem' }">
     
     <div class="page-container">
         <div class="page-header">
             <div>
                 <p class="page-subtitle">Visualizá y administrá las firmas asociadas a tus proyectos.</p>
             </div>
-            <p-button 
-                id="boton-crear-cliente" 
-                icon="pi pi-plus" 
-                label="Crear Cliente" 
-                styleClass="btn-primario"
-                (click)="crearCliente()">
-            </p-button>
-        </div>
+        <div class="botones-accion">
+                        <p-button 
+                            id="boton-crear-cliente" 
+                            icon="pi pi-plus" 
+                            label="Crear Cliente" 
+                            styleClass="btn-primario btn-crear"
+                            (click)="crearCliente()">
+                        </p-button>
+
+                        <div class="separador-vertical"></div>
+                        
+                        <p-button
+                            icon="pi pi-file-excel"   
+                            styleClass="btn-exportar-compacto"  
+                            pTooltip="Exportar a Excel"
+                            tooltipPosition="bottom"
+                            (click)="exportarExcel()">
+                        </p-button>
+
+                        <p-button
+                            icon="pi pi-file-export"   
+                            styleClass="btn-exportar-csv"  
+                            pTooltip="Exportar a CSV"
+                            tooltipPosition="bottom"
+                            (click)="exportarCSV()">
+                        </p-button>
+                    </div>
+                </div>
 
         <div class="tabla-wrapper">
             <p-table 
@@ -30,6 +51,8 @@
                     <tr>
                         <th>Nombre</th>
                         <th>Estado</th>
+                        <th>Telefono</th>
+                        <th>Email</th>
                         <th class="text-right">Acciones</th>
                     </tr>
                 </ng-template>
@@ -37,10 +60,12 @@
                     <tr>
                         <td class="font-medium">{{ cliente.nombre }}</td>
                         <td>
-                            <span class="badge-estado" [class.activo]="cliente.estado === 'Activo'">
+                            <span class="badge-estado" [class.activo]="cliente.estado === 'ACTIVO'">
                                 {{ cliente.estado }}
                             </span>
                         </td>
+                        <td>{{ cliente.telefono }}</td>
+                        <td>{{ cliente.email }}</td>
                         <td class="text-right table-actions">
                             <p-button 
                                 icon="pi pi-pencil" 
@@ -54,7 +79,7 @@
                 </ng-template>
                 <ng-template #emptymessage>
                     <tr>
-                        <td colspan="3" class="tabla-vacia">
+                        <td colspan="5" class="tabla-vacia">
                             <i class="pi pi-users empty-icon"></i>
                             <p>No se encontraron clientes registrados.</p>
                         </td>

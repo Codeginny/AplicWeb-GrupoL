@@ -23,25 +23,25 @@ export class Login {
     private readonly authStore: AuthStore = inject(AuthStore);
 
     private readonly router: Router = inject(Router);
-
+    // El formulario reactivo para el login
     readonly form: FormGroup = new FormGroup({
         nombre: new FormControl("", [Validators.required]),
         clave: new FormControl("", [Validators.required])
     });
-
+    
     iniciarSesion() {
 
-        if (!this.form.valid){
+        if (!this.form.valid){// Si el formulario no es válido, mostramos un mensaje de error y no hacemos nada más
             this.messageService.add({severity: "error", summary: "Los campos del formulario son requeridos"});
             return;
         }
-
+        // Obtenemos los valores del formulario
         const nombre: string = this.form.value.nombre
-
         const clave: string = this.form.value.clave
 
-        this.loginApiClient.iniciarSesion(nombre, clave).subscribe({
-            next: (data)=>{
+        // Llamamos al API para iniciar sesión
+        this.loginApiClient.iniciarSesion(nombre, clave).subscribe({//  Nos suscribimos al observable que devuelve el API osea que esperamos la respuesta del servidor
+            next: (data)=>{ 
                 this.authStore.guardarToken(data.accessToken);
                 this.router.navigateByUrl("/proyectos");
             },

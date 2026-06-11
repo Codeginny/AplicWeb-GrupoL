@@ -25,6 +25,8 @@
                 <h2 class="page-title">Tareas</h2>
                 <p class="page-subtitle">Tareas del proyecto.</p>
             </div>
+            
+            <div class="botones-accion">
             <div class="header-buttons">
                 <p-button 
                     icon="pi pi-tags" 
@@ -38,6 +40,27 @@
                     id="boton-crear-tarea" 
                     icon="pi pi-plus" 
                     label="Crear Tarea" 
+                    styleClass="btn-primario btn-crear"
+                    (click)="crearTarea()">
+                </p-button>
+
+                <div class="separador-vertical"></div>
+                
+                <p-button
+                    icon="pi pi-file-excel"   
+                    styleClass="btn-exportar-compacto"  
+                    pTooltip="Exportar a Excel"
+                    tooltipPosition="bottom"
+                    (click)="exportarExcel()">
+                </p-button>
+
+                <p-button
+                    icon="pi pi-file-export"   
+                    styleClass="btn-exportar-csv"  
+                    pTooltip="Exportar a CSV"
+                    tooltipPosition="bottom"
+                    (click)="exportarCSV()">
+                </p-button>
                     styleClass="btn-primario"
                     (click)="crearTarea()">
                 </p-button>

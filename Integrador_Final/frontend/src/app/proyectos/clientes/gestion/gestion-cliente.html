@@ -18,6 +18,28 @@
                     id="nombre" 
                     placeholder="Ej. Acme Corporation" 
                     formControlName="nombre" />
+
+                    
+            </div>
+
+            <div class="campo-grupo">
+                <label for="telefono" class="label-moderno">Teléfono</label>
+                <input 
+                    pInputText 
+                    type="text" 
+                    id="telefono" 
+                    placeholder="Ej. +1 (555) 123-4567" 
+                    formControlName="telefono" />
+            </div>
+
+            <div class="campo-grupo">
+                <label for="email" class="label-moderno">Correo Electrónico</label>
+                <input 
+                    pInputText 
+                    type="email" 
+                    id="email" 
+                    placeholder="Ej. info@acmecorp.com" 
+                    formControlName="email" />
             </div>
 
             @if (clienteSeleccionado()) {

@@ -1,17 +1,42 @@
 <app-template>
     <div class="page-container">
         <div class="page-header">
-            <div>
-                <h2 class="page-title">Proyectos</h2>
-                <p class="page-subtitle">Gestion de proyectos, sus clientes y tareas.</p>
-            </div>
-           <p-button 
-            id="boton-crear-proyecto" 
-            icon="pi pi-plus" 
-            label="Crear Proyecto" 
-            styleClass="btn-primario"
-            (click)="crearProyecto()">
-        </p-button>
+        <div>
+            <h2 class="page-title">Proyectos</h2>
+            <p class="page-subtitle">Gestion de proyectos...</p>
+        </div>
+
+        <div style="display:flex; gap:8px; align-items:center;">
+
+        <div class="botones-accion">
+            <p-button
+                icon="pi pi-plus"
+                label="Crear Proyecto"
+                styleClass="btn-primario btn-crear"
+                (click)="crearProyecto()">
+            </p-button>
+
+            <div class="separador-vertical"></div>
+            
+            <p-button
+                icon="pi pi-file-excel"   
+                styleClass="btn-exportar-compacto"  
+                pTooltip="Exportar a Excel"
+                tooltipPosition="bottom"
+                (click)="exportarExcel()">
+            </p-button>
+
+            <p-button
+                icon="pi pi-file-export"   
+                styleClass="btn-exportar-csv"  
+                pTooltip="Exportar a CSV"
+                tooltipPosition="bottom"
+                (click)="exportarCSV()">
+            </p-button>
+
+        </div>
+
+        </div>
         </div>
 
         <div class="tabla-wrapper">

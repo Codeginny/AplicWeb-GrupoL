@@ -1,0 +1,300 @@
+# Documentacion Tecnica - Modulo Kanban
+
+## Sistema de Gestion de Proyectos - Proyecto Integrador
+
+**Autora:** Grupo L - Aplicaciones Web  
+**Universidad Nacional de Entre Rios (UNER)**  
+**Fecha:** Junio 2026
+
+---
+
+## 1. Resumen de la Arquitectura
+
+### 1.1. Estructura Cliente-Servidor
+
+El sistema se encuentra implementado bajo una arquitectura cliente-servidor desacoplada, donde cada capa opera de forma independiente y se comunica exclusivamente a traves de una API REST versionada.
+
+**Backend (Servidor):** Desarrollado con **NestJS** (framework de Node.js basado en TypeScript), el cual provee una estructura modular que permite organizar el codigo en controladores, servicios y entidades. La persistencia de datos se gestiona mediante **TypeORM** como ORM (Object-Relational Mapping), conectado a una base de datos **PostgreSQL**. La API se encuentra protegida mediante autenticacion basada en **JSON Web Tokens (JWT)**, implementada a traves de guards personalizados (`AuthGuard`). Adicionalmente, se utiliza **Helmet** para la configuracion de cabeceras de seguridad HTTP.
+
+El versionado de la API se realiza mediante URI (`/api/v1/...`), lo cual permite gestionar futuras versiones sin afectar a los consumidores existentes. La validacion de los datos de entrada se centraliza en un `ValidationPipe` global configurado con las opciones `whitelist: true` y `forbidNonWhitelisted: true`, lo que garantiza que solo se procesen los campos explicitamente definidos en los DTOs (Data Transfer Objects).
+
+**Frontend (Cliente):** Desarrollado con **Angular 21** utilizando componentes standalone y el sistema de reactividad basado en **Signals**. La interfaz de usuario se construye con la biblioteca de componentes **PrimeNG 21**, que provee elementos visuales como tablas, dialogos, selectores y botones con un diseno consistente. La comunicacion con el backend se realiza a traves del modulo `HttpClient` de Angular, y las solicitudes se enrutan al servidor mediante un **proxy de desarrollo** configurado en `proxy.conf.json`, que redirige las peticiones `/api/**` al puerto 3000 del backend.
+
+### 1.2. Logica del Tablero Kanban y Reactividad
+
+El tablero Kanban constituye el nucleo funcional del modulo de gestion de tareas. Su implementacion se basa en un modelo de **tres columnas fijas** (Pendiente, En proceso, Terminado) que representan los estados del flujo de trabajo. Cada columna se materializa como una entidad persistente en la base de datos, asociada a un proyecto especifico.
+
+**Reactividad en el Frontend:**
+
+La gestion del estado reactivo en el frontend se implementa mediante el sistema de **Signals** de Angular, que reemplaza al patron tradicional de Observables para el manejo del estado local de los componentes. Los Signals principales del modulo son:
+
+- `proyecto: WritableSignal<ProyectoDTO | null>`: Almacena el proyecto actualmente visualizado, incluyendo sus columnas y tareas.
+- `columnas: WritableSignal<ColumnaDTO[]>`: Contiene el arreglo de columnas ordenadas por el campo `orden`, que alimenta la renderizacion del tablero.
+- `dialogVisible: WritableSignal<boolean>`: Controla la visibilidad del dialogo de gestion de tareas.
+- `searchQuery: WritableSignal<string>`: Almacena el termino de busqueda para el filtrado en tiempo real.
+
+La sincronizacion entre la interfaz y el servidor se logra mediante un patron de **efecto reactivo** (`effect`): cada vez que el dialogo de gestion se cierra (`dialogVisible()` pasa a `false`), se dispara automaticamente una recarga del proyecto desde el backend. Este mecanismo garantiza que el tablero siempre refleje el estado mas reciente de la base de datos sin necesidad de recargar la pagina.
+
+**Drag and Drop:**
+
+La funcionalidad de arrastrar y soltar tarjetas entre columnas se implementa mediante el modulo `@angular/cdk/drag-drop`. Cuando una tarea se mueve de una columna a otra, el sistema ejecuta dos acciones concurrentes:
+
+1. **Actualizacion optimista de la UI:** Se modifica el arreglo local de columnas mediante `transferArrayItem`, lo que refleja el cambio de forma inmediata en la interfaz.
+2. **Persistencia en el servidor:** Se envia una peticion `PUT` al endpoint de actualizacion de tareas, incluyendo el nuevo `idColumna` y el estado correspondiente derivado del campo `orden` de la columna destino.
+
+---
+
+## 2. Modelo de Datos (Base de Datos)
+
+### 2.1. Estructura Relacional
+
+La base de datos PostgreSQL se estructura en torno a cuatro entidades principales que conforman el modelo relacional del sistema:
+
+```
+┌──────────────┐       ┌──────────────────┐       ┌──────────────┐       ┌──────────────┐
+│   clientes   │       │    proyectos     │       │   columnas   │       │    tareas     │
+├──────────────┤       ├──────────────────┤       ├──────────────┤       ├──────────────┤
+│ id (PK)      │──1:N─→│ id (PK)          │──1:N─→│ id (PK)      │──1:N─→│ id (PK)      │
+│ nombre       │       │ nombre           │       │ nombre       │       │ descripcion  │
+│ estado (enum)│       │ estado (enum)    │       │ orden        │       │ estado (enum)│
+│              │       │ id_cliente (FK)  │       │ id_proyecto  │       │ id_columna   │
+│              │       │                  │       │   (FK)       │       │   (FK)       │
+│              │       │                  │       │              │       │ id_proyecto  │
+│              │       │                  │       │              │       │   (FK)       │
+│              │       │                  │       │              │       │ prioridad    │
+│              │       │                  │       │              │       │ responsable  │
+│              │       │                  │       │              │       │ fecha_entrega│
+└──────────────┘       └──────────────────┘       └──────────────┘       └──────────────┘
+```
+
+**Tabla `clientes`:** Almacena los datos de los clientes del sistema. El campo `estado` es de tipo `enum` con los valores `ACTIVO` y `BAJA`. Un cliente en estado `BAJA` no puede ser asignado a nuevos proyectos.
+
+**Tabla `proyectos`:** Registra los proyectos gestionados. Cada proyecto posee una relacion opcional (`nullable`) con un cliente a traves de la clave foranea `id_cliente`. El campo `estado` admite los valores `ACTIVO`, `FINALIZADO` y `BAJA`.
+
+**Tabla `columnas`:** Representa las columnas del tablero Kanban. Cada columna pertenece a un unico proyecto mediante `id_proyecto` y posee un campo `orden` que determina su posicion en el tablero. La eliminacion de un proyecto desencadena la eliminacion en cascada de sus columnas (`onDelete: CASCADE`).
+
+**Tabla `tareas`:** Contiene las tareas individuales. Cada tarea se vincula a un proyecto (`id_proyecto`) y opcionalmente a una columna (`id_columna`, nullable). El campo `estado` es de tipo `enum` con los valores `PENDIENTE`, `EN_PROGRESO`, `FINALIZADA` y `BAJA`. Los campos `prioridad`, `responsable` y `fecha_entrega` son opcionales y permiten enriquecer la informacion de cada tarea.
+
+### 2.2. Relacion entre Proyecto, Columna y Tarea
+
+La relacion entre estas tres entidades sigue una jerarquia estricta:
+
+- **Proyecto → Columna (1:N):** Cada proyecto contiene exactamente tres columnas, creadas automaticamente la primera vez que se accede al detalle del proyecto. La relacion se define con `cascade: true` en la entidad Proyecto, lo que permite que las operaciones de guardado se propaguen a las columnas asociadas.
+
+- **Columna → Tarea (1:N):** Cada columna puede contener multiples tareas. La relacion se define con `cascade: true` en la entidad Columna y `onDelete: SET NULL` en la entidad Tarea, lo que significa que si se elimina una columna, las tareas asociadas no se eliminan sino que su campo `id_columna` se establece en `NULL`.
+
+- **Proyecto → Tarea (1:N):** Adicionalmente, cada tarea mantiene una referencia directa al proyecto al que pertenece. Esta relacion redundante (ya que la tarea podria derivar el proyecto a traves de la columna) se implementa por razones de rendimiento, ya que permite consultar todas las tareas de un proyecto sin necesidad de realizar joins a traves de la tabla de columnas.
+
+### 2.3. Columnas Fijas con Mapeo por Campo `orden`
+
+La decision de implementar **columnas fijas** (exactamente tres por proyecto) con un mapeo basado en el campo `orden` responde a los siguientes criterios de diseno:
+
+**Justificacion tecnica:**
+
+1. **Consistencia del flujo de trabajo:** Al mantener tres columnas con ordenes 1, 2 y 3, se establece una correspondencia directa e inmutable entre la posicion en el tablero y el estado logico de la tarea:
+   - `orden = 1` → Estado `PENDIENTE`
+   - `orden = 2` → Estado `EN_PROGRESO`
+   - `orden = 3` → Estado `FINALIZADA`
+
+2. **Simplificacion de la logica de Drag and Drop:** Cuando una tarea se arrastra a una columna, el sistema determina automaticamente el nuevo estado de la tarea consultando el campo `orden` de la columna destino. Esta derivacion elimina la posibilidad de inconsistencias entre el estado persistido y la posicion visual de la tarea en el tablero.
+
+3. **Auto-inicializacion:** El servicio `ProyectosService.obtenerProyecto()` verifica la existencia y cantidad de columnas cada vez que se accede al detalle de un proyecto. Si no existen columnas (proyecto recien creado) o la cantidad es diferente a tres, el sistema las crea o ajusta automaticamente, garantizando que el tablero siempre se renderice correctamente.
+
+### 2.4. Integridad Referencial y Escalabilidad
+
+La integridad referencial del sistema se garantiza mediante los siguientes mecanismos:
+
+- **Claves foraneas con acciones referenciales:** La eliminacion de un proyecto desencadena la eliminacion en cascada de sus columnas (`onDelete: CASCADE`). La eliminacion de una columna establece en `NULL` el campo `id_columna` de las tareas asociadas (`onDelete: SET NULL`), preservando los datos de la tarea para su posterior reasignacion.
+
+- **Validacion a nivel de servicio:** Antes de permitir la baja de un cliente, el sistema verifica que no existan proyectos activos o finalizados asociados a dicho cliente. Esta validacion se implementa en `ClientesService.actualizarCliente()`.
+
+- **Validacion a nivel de DTO:** El `ValidationPipe` global con configuracion `whitelist: true` asegura que solo los campos declarados en los DTOs sean procesados, previniendo la inyeccion de campos no autorizados en las peticiones.
+
+En cuanto a la escalabilidad, la estructura permite agregar nuevas columnas personalizadas por proyecto sin modificar el esquema de la base de datos, ya que la entidad `Columna` no esta limitada a un numero fijo a nivel de esquema. La restriccion de tres columnas es una regla de negocio implementada en la capa de servicios, lo que facilita su modificacion futura si los requisitos lo demandan.
+
+---
+
+## 3. Funcionalidades Implementadas
+
+### 3.1. Gestion de Tareas (CRUD Completo)
+
+El modulo implementa un ciclo de vida completo para las tareas, expuesto a traves de los siguientes endpoints REST:
+
+| Operacion | Metodo HTTP | Endpoint                                      | Descripcion                                    |
+|-----------|-------------|------------------------------------------------|------------------------------------------------|
+| Crear     | `POST`      | `/api/v1/proyectos/:idProyecto/tareas`         | Crea una nueva tarea en estado `PENDIENTE`     |
+| Actualizar| `PUT`       | `/api/v1/proyectos/:idProyecto/tareas/:id`     | Modifica los campos de una tarea existente     |
+| Eliminar  | `DELETE`    | `/api/v1/proyectos/:idProyecto/tareas/:id`     | Elimina permanentemente una tarea              |
+
+**Creacion:** Al crear una tarea, el sistema asigna automaticamente el estado `PENDIENTE` y la vincula al proyecto indicado en la URL. Los campos opcionales (`prioridad`, `responsable`, `fechaEntrega`, `idColumna`) pueden enviarse en el cuerpo de la peticion o ser completados posteriormente mediante una actualizacion.
+
+**Actualizacion:** El DTO de actualizacion (`UpdateTareaDto`) declara explicitamente cada campo con sus decoradores de validacion (`@IsString`, `@IsOptional`, `@IsIn`, etc.), evitando la herencia de `PartialType` que provocaba la perdida de metadatos de validacion bajo la configuracion estricta del `ValidationPipe`. Esta decision de diseno fue adoptada tras identificar que `PartialType` de `@nestjs/swagger` no preservaba los decoradores de `class-validator` en tiempo de ejecucion, lo que resultaba en la eliminacion silenciosa de campos durante la validacion.
+
+**Eliminacion:** La eliminacion se realiza con una confirmacion previa en el frontend mediante un dialogo de confirmacion de PrimeNG (`ConfirmDialog`). El backend verifica la existencia de la tarea antes de proceder con la operacion `DELETE`.
+
+### 3.2. Filtro de Busqueda en Tiempo Real
+
+El filtrado de tareas dentro del tablero Kanban se implementa mediante un **Pipe Standalone** de Angular denominado `FiltroTareasPipe`. Este pipe se aplica directamente en la plantilla HTML sobre el arreglo de tareas de cada columna:
+
+```html
+@for (tarea of (columna.tareas | filtroTareas: searchQuery()); track tarea.id) {
+    <!-- Renderizado de la tarjeta de tarea -->
+}
+```
+
+**Implementacion del Pipe:**
+
+```typescript
+@Pipe({ name: 'filtroTareas', standalone: true })
+export class FiltroTareasPipe implements PipeTransform {
+  transform(tareas: ListTareaDTO[] | null, query: string | null): ListTareaDTO[] {
+    if (!Array.isArray(tareas)) return [];
+    if (!query) return tareas;
+    const lowerQuery = query.toLowerCase().trim();
+    return tareas.filter(t => t.descripcion.toLowerCase().includes(lowerQuery));
+  }
+}
+```
+
+**Caracteristicas tecnicas:**
+
+- **Standalone:** El pipe se declara como `standalone: true`, lo que permite importarlo directamente en el componente sin necesidad de declararlo en un modulo compartido.
+- **Null-safe:** Maneja correctamente los casos en que el arreglo de tareas sea `null` (durante la carga inicial) o la query sea vacia (sin filtro aplicado).
+- **Case-insensitive:** La comparacion se realiza en minusculas para garantizar que la busqueda sea insensible a mayusculas y minusculas.
+- **Filtrado por descripcion:** El criterio de busqueda se aplica exclusivamente sobre el campo `descripcion` de la tarea mediante `String.includes()`.
+
+El termino de busqueda se almacena en un `WritableSignal<string>` denominado `searchQuery`, que se actualiza de forma reactiva conforme el usuario escribe en el campo de busqueda. Al ser un Signal, cada modificacion del valor dispara automaticamente la reevaluacion del pipe en todas las columnas del tablero.
+
+### 3.3. Estados Tecnicos y Visualizacion mediante Badges
+
+El sistema utiliza enumeraciones tanto en el backend como en el frontend para representar los estados de las entidades. Los valores definidos son:
+
+**Estados de Proyectos (`EstadosProyectosEnum`):**
+- `ACTIVO`: Proyecto en curso.
+- `FINALIZADO`: Proyecto completado.
+- `BAJA`: Proyecto dado de baja.
+
+**Estados de Tareas (`EstadosTareasEnum`):**
+- `PENDIENTE`: Tarea sin iniciar.
+- `EN_PROGRESO`: Tarea en ejecucion.
+- `FINALIZADA`: Tarea completada.
+- `BAJA`: Tarea dada de baja.
+
+**Estados de Clientes (`EstadosClientesEnum`):**
+- `ACTIVO`: Cliente habilitado.
+- `BAJA`: Cliente dado de baja.
+
+**Visualizacion en el Frontend:**
+
+Los estados se representan visualmente mediante **badges minimalistas** implementados con clases CSS condicionales. Cada badge consiste en un elemento `<span>` con bordes redondeados (`border-radius: 40px`) y un color de fondo que varia segun el estado:
+
+| Estado        | Color de fondo | Codigo hexadecimal |
+|---------------|----------------|--------------------|
+| `ACTIVO`      | Verde          | `#4caf50`          |
+| `FINALIZADO`  | Azul           | `#2196f3`          |
+| `BAJA`        | Rojo           | `#f44336`          |
+
+La asignacion de clases se realiza mediante bindings condicionales de Angular:
+
+```html
+<span class="badge-estado"
+      [class.estado-activo]="proyecto.estado === 'ACTIVO'"
+      [class.estado-completado]="proyecto.estado === 'FINALIZADO'"
+      [class.estado-baja]="proyecto.estado === 'BAJA'">
+    {{ proyecto.estado }}
+</span>
+```
+
+Este enfoque permite que la visualizacion del estado sea declarativa y se actualice automaticamente cuando el modelo de datos cambia, sin necesidad de logica imperativa en el componente.
+
+---
+
+## 4. Guia de Despliegue y Configuracion
+
+### 4.1. Requisitos Tecnicos
+
+| Componente     | Version requerida | Observaciones                              |
+|----------------|-------------------|--------------------------------------------|
+| Node.js        | >= 18.x           | Recomendado: LTS mas reciente              |
+| npm            | >= 9.x            | Incluido con Node.js                       |
+| PostgreSQL     | >= 14.x           | Con soporte para tipos `enum`              |
+| Angular CLI    | >= 21.x           | Instalado como dependencia del proyecto    |
+| NestJS CLI     | >= 10.x           | Instalado como dependencia del proyecto    |
+
+### 4.2. Configuracion de la Base de Datos
+
+1. Crear una base de datos en PostgreSQL:
+
+```sql
+CREATE DATABASE gestor_de_proyectos;
+```
+
+2. Configurar las credenciales en el archivo `/backend/.env`:
+
+```env
+PORT=3000
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=admin123
+DB_NAME=gestor_de_proyectos
+DB_LOGGING=true
+SWAGGER_HABILITADO=true
+JWT_SECRET="<clave_secreta>"
+```
+
+TypeORM se encargara de crear automaticamente las tablas y relaciones al iniciar el backend, gracias a la configuracion de sincronizacion del esquema.
+
+### 4.3. Instalacion y Ejecucion del Backend
+
+```bash
+# Navegar al directorio del backend
+cd Integrador_Final/backend
+
+# Instalar dependencias
+npm install
+
+# Compilar el proyecto
+npm run build
+
+# Ejecutar en modo desarrollo
+npm run start:dev
+
+# Alternativa: Ejecutar con PM2 (produccion)
+npx pm2 start dist/main.js --name gestor-proyectos-backend
+```
+
+Al iniciar por primera vez, el sistema ejecuta un proceso de **seed** que crea automaticamente un usuario por defecto con las credenciales `usuario` / `clave`, siempre que no exista previamente en la base de datos.
+
+La documentacion interactiva de la API esta disponible en `http://localhost:3000/api` cuando la variable de entorno `SWAGGER_HABILITADO` se encuentra configurada como `true`.
+
+### 4.4. Instalacion y Ejecucion del Frontend
+
+```bash
+# Navegar al directorio del frontend
+cd Integrador_Final/frontend
+
+# Instalar dependencias
+npm install
+
+# Ejecutar en modo desarrollo
+npm run start
+```
+
+El servidor de desarrollo de Angular se inicia en `http://localhost:4200`. El proxy de desarrollo redirige automaticamente las peticiones `/api/**` al backend en `http://localhost:3000`, por lo que no es necesario configurar CORS adicional durante el desarrollo.
+
+### 4.5. Despliegue para Produccion
+
+Para el despliegue en un entorno de produccion, se debe compilar el frontend y copiar los archivos estaticos al servidor web:
+
+```bash
+# Compilar el frontend para produccion
+cd Integrador_Final/frontend
+npm run deploy
+```
+
+Este comando ejecuta la compilacion optimizada, limpia el directorio de Nginx y copia los archivos generados a `../../nginx/html/`. El servidor Nginx debe configurarse como proxy inverso para redirigir las peticiones `/api/**` al backend de NestJS.
+
+---
+
+*Documento elaborado como parte del Proyecto Integrador de la catedra de Aplicaciones Web.*

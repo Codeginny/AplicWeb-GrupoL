@@ -17,9 +17,7 @@
         <div class="tabla-wrapper">
             <p-table 
                 id="tabla" 
-                [value]="proyectos()" 
-                [scrollable]="true"
-                scrollHeight="calc(100vh - 280px)">
+                [value]="proyectos()">
                 <ng-template #header>
                     <tr>
                         <th>Nombre</th>
@@ -32,10 +30,19 @@
                     <tr>
                         <td class="font-medium text-slate-900">{{ proyecto.nombre }}</td>
                         <td>
-                            <span class="cliente-tag">
-                                <i class="pi pi-briefcase text-xs"></i>
-                                {{ proyecto.cliente ? proyecto.cliente.nombre : 'Sin asignar' }}
-                            </span>
+                            <div class="cliente-cell">
+                                <i class="pi pi-briefcase cliente-icono"></i>
+                                <p-select
+                                    [options]="clientes()"
+                                    optionLabel="nombre"
+                                    optionValue="id"
+                                    [ngModel]="proyecto.cliente?.id ?? null"
+                                    (onChange)="cambiarCliente(proyecto, $event)"
+                                    placeholder="Sin asignar"
+                                    [showClear]="false"
+                                    styleClass="cliente-select-mini">
+                                </p-select>
+                            </div>
                         </td>
                         <td>
                            <span class="badge-estado" 

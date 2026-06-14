@@ -49,8 +49,8 @@ export class GestionProyecto {
 
     readonly form: FormGroup = new FormGroup({
         nombre: new FormControl("", [Validators.required]),
-        cliente: new FormControl(null),
-        estado: new FormControl(null)
+        cliente: new FormControl<number | null>(null),
+        estado: new FormControl<string | null>(null)
     });
 
     constructor() {
@@ -58,7 +58,7 @@ export class GestionProyecto {
             if (this.proyectoSeleccionado()) {
                 this.form.patchValue({
                     nombre: this.proyectoSeleccionado()?.nombre,
-                    cliente: this.proyectoSeleccionado()?.cliente,
+                    cliente: this.proyectoSeleccionado()?.cliente?.id ?? null,
                     estado: this.proyectoSeleccionado()?.estado
                 });
             }
@@ -99,6 +99,7 @@ export class GestionProyecto {
         this.visible.set(false);
     }
 
+
     guardarProyecto(): void {
         if (!this.form.valid) {
             this.form.markAllAsTouched();
@@ -108,10 +109,13 @@ export class GestionProyecto {
 
         const formRawValue = this.form.getRawValue();
 
+        // El control 'cliente' ahora siempre es un número (id) o null gracias a optionValue="id"
+        const clienteId: number | null = formRawValue.cliente != null ? Number(formRawValue.cliente) : null;
+
         if (this.proyectoSeleccionado()) {
             const dto: UpdateProyectoDto = {
                 nombre: formRawValue.nombre,
-                idCliente: formRawValue.cliente ? formRawValue.cliente.id : null,
+                idCliente: clienteId,
                 estado: formRawValue.estado
             };
             this.gestionProyectoApiClient.actualizarProyecto(this.proyectoSeleccionado()?.id!, dto).subscribe({
@@ -133,7 +137,7 @@ export class GestionProyecto {
         } else {
             const dto: CreateProyectoDTO = {
                 nombre: formRawValue.nombre,
-                idCliente: formRawValue.cliente ? formRawValue.cliente.id : null
+                idCliente: clienteId!
             };
             this.gestionProyectoApiClient.crearProyecto(dto).subscribe({
                 next: () => {

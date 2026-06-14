@@ -15,7 +15,7 @@
                 }
                 <div class="info-block border-l">
                     <span class="info-label">Estado</span>
-                    <span class="badge-estado activo">{{ proyecto()?.estado }}</span>
+                    <span [class]="'badge-estado ' + (proyecto()?.estado === 'ACTIVO' ? 'activo' : 'baja')">{{ proyecto()?.estado }}</span>
                 </div>
             </div>
         </div>
@@ -25,62 +25,136 @@
                 <h2 class="page-title">Tareas</h2>
                 <p class="page-subtitle">Tareas del proyecto.</p>
             </div>
-            <p-button 
-                id="boton-crear-tarea" 
-                icon="pi pi-plus" 
-                label="Crear Tarea" 
-                styleClass="btn-primario"
-                (click)="crearTarea()">
-            </p-button>
+            <div class="header-actions" style="display: flex; gap: 1rem; align-items: center;">
+                <div class="search-box-wrapper" style="position: relative;">
+                    <i class="pi pi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #bcaca0;"></i>
+                    <input 
+                        type="text" 
+                        class="p-inputtext" 
+                        placeholder="Buscar tareas..." 
+                        [ngModel]="searchQuery()" 
+                        (ngModelChange)="searchQuery.set($event)" 
+                        style="padding-left: 2.2rem !important; width: 240px;" />
+                </div>
+                <p-button 
+                    id="boton-crear-tarea" 
+                    icon="pi pi-plus" 
+                    label="Crear Tarea" 
+                    styleClass="btn-primario"
+                    (click)="crearTarea()">
+                </p-button>
+            </div>
         </div>
 
-        <!-- Tabla de tareas -->
-        <div class="tabla-wrapper">
-            <p-table 
-                id="tabla" 
-                [value]="tareas()" 
-                [scrollable]="true"
-                scrollHeight="calc(100vh - 380px)">
-                <ng-template #header>
-                    <tr>
-                        <th>Descripción</th>
-                        <th>Estado</th>
-                        <th class="text-right">Acciones</th>
-                    </tr>
-                </ng-template>
-                <ng-template #body let-tarea>
-                    <tr>
-                        <td class="font-medium">{{ tarea.descripcion }}</td>
-                        <td>
-                            <span class="badge-estado" 
-                            [class.estado-activo]="tarea.estado === 'PENDIENTE'"
-                            [class.estado-completado]="tarea.estado === 'FINALIZADA'"
-                            [class.estado-baja]="tarea.estado === 'BAJA'">
-                        {{ tarea.estado }}
-                        </span>
-                        </td>
-                        <td class="text-right table-actions">
-                            <p-button 
-                                icon="pi pi-pencil" 
-                                [text]="true"
-                                pTooltip="Editar Tarea" 
-                                tooltipPosition="top"
-                                (click)="editarTarea(tarea)">
-                            </p-button>
-                        </td>
-                    </tr>
-                </ng-template>
-                <ng-template #emptymessage>
-                    <tr>
-                        <td colspan="3" class="tabla-vacia">
-                            <i class="pi pi-check-square empty-icon"></i>
-                            <p>No hay tareas creadas para este proyecto todavía.</p>
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-table>
+        <!-- Tablero Kanban estilo Notion -->
+        <div class="kanban-board" cdkDropListGroup>
+            
+            @for (columna of columnas(); track columna.id) {
+                <div class="kanban-column">
+                    <div class="column-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 0.5rem; margin-bottom: 0.75rem;">
+                        @if (editingColumnaId() === columna.id) {
+                            <input 
+                                type="text" 
+                                class="p-inputtext input-columna-edit"
+                                [ngModel]="editColumnaNombreValue()"
+                                (ngModelChange)="editColumnaNombreValue.set($event)"
+                                (blur)="guardarEdicionColumna(columna.id)"
+                                (keyup.enter)="guardarEdicionColumna(columna.id)"
+                                style="font-size: 0.85rem; padding: 0.2rem 0.5rem; width: 100%;"
+                                [autofocus]="true" />
+                        } @else {
+                            <span 
+                                [class]="'column-title-pill ' + (columna.orden === 1 ? 'state-pendiente' : columna.orden === 2 ? 'state-en-progreso' : 'state-finalizada')" 
+                                style="cursor: pointer; text-transform: uppercase;"
+                                (dblclick)="iniciarEdicionColumna(columna)">
+                                {{ columna.nombre }}
+                            </span>
+                            <div class="column-header-actions" style="display: flex; align-items: center; gap: 0.2rem;">
+                                <span class="column-count">{{ columna.tareas.length }}</span>
+                                <p-button 
+                                    icon="pi pi-pencil" 
+                                    [text]="true" 
+                                    styleClass="p-button-xs"
+                                    (click)="iniciarEdicionColumna(columna)">
+                                </p-button>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div 
+                        [id]="columna.id.toString()"
+                        cdkDropList
+                        [cdkDropListData]="columna.tareas"
+                        (cdkDropListDropped)="drop($event, columna.id)"
+                        class="column-list"
+                        style="min-height: 400px; display: flex; flex-direction: column; gap: 0.85rem;">
+                        
+                        @for (tarea of (columna.tareas | filtroTareas: searchQuery()); track tarea.id) {
+                            <div class="kanban-card" cdkDrag>
+                                <div class="card-body">
+                                    <div class="card-title-row">
+                                        <i [class]="'pi pi-bookmark-fill card-icon ' + (columna.orden === 1 ? 'text-red' : columna.orden === 2 ? 'text-blue' : 'text-green')"></i>
+                                        <span class="card-title">{{ tarea.descripcion }}</span>
+                                    </div>
+                                    
+                                    @if (tarea.prioridad) {
+                                        <div class="card-tags">
+                                            <span [class]="'badge-tag priority-' + tarea.prioridad.toLowerCase()">{{ tarea.prioridad }}</span>
+                                        </div>
+                                    }
+                                    
+                                    @if (tarea.responsable || tarea.fechaEntrega) {
+                                        <div class="card-footer-row">
+                                            @if (tarea.responsable) {
+                                                <div class="card-assignee">
+                                                    <span class="avatar">{{ tarea.responsable.slice(0, 2).toUpperCase() }}</span>
+                                                    <span class="assignee-name">{{ tarea.responsable }}</span>
+                                                </div>
+                                            }
+                                            @if (tarea.fechaEntrega) {
+                                                <div class="card-date">
+                                                    <i class="pi pi-calendar"></i>
+                                                    <span>{{ tarea.fechaEntrega | date:'dd MMM, yyyy' }}</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                    
+                                    <!-- Acciones flotantes / hover -->
+                                    <div class="card-actions-overlay">
+                                        <p-button 
+                                            icon="pi pi-pencil" 
+                                            [text]="true"
+                                            pTooltip="Editar Tarea" 
+                                            tooltipPosition="top"
+                                            (click)="editarTarea(tarea); $event.stopPropagation()">
+                                        </p-button>
+                                        <p-button 
+                                            icon="pi pi-trash" 
+                                            [text]="true"
+                                            severity="danger"
+                                            pTooltip="Eliminar Tarea" 
+                                            tooltipPosition="top"
+                                            (click)="eliminarTarea(tarea); $event.stopPropagation()">
+                                        </p-button>
+                                    </div>
+                                </div>
+                            </div>
+                        } @empty {
+                            <div class="empty-list-placeholder">
+                                <i class="pi pi-plus-circle"></i>
+                                <span>Sin tareas aquí.</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+
+
         </div>
     </div>
 </app-template>
 
-<app-gestion-tarea [(visible)]="dialogVisible" [idProyecto]="idProyecto()" [(tareaSeleccionada)]="tareaSeleccionada"></app-gestion-tarea>
+<app-gestion-tarea [(visible)]="dialogVisible" [idProyecto]="idProyecto()" [(tareaSeleccionada)]="tareaSeleccionada" [columnas]="columnas()"></app-gestion-tarea>
+<p-confirmDialog styleClass="custom-confirm-dialog"></p-confirmDialog>

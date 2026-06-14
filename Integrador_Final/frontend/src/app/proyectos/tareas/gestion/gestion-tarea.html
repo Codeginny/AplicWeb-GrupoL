@@ -20,17 +20,47 @@
                     formControlName="descripcion" />
             </div>
 
-            @if (tareaSeleccionada()) {
-                <div class="campo-grupo animate-fade-in">
-                    <label for="estado" class="label-moderno">Estado Actual</label>
-                    <p-select 
-                        id="estado" 
-                        formControlName="estado" 
-                        [options]="estados()" 
-                        placeholder="Seleccionar estado" 
-                        appendTo="body" />
-                </div>
-            }
+            <div class="campo-grupo">
+                <label for="idColumna" class="label-moderno">Columna / Estado</label>
+                <p-select 
+                    id="idColumna" 
+                    formControlName="idColumna" 
+                    [options]="columnas()" 
+                    optionLabel="nombre"
+                    optionValue="id"
+                    placeholder="Seleccionar columna" 
+                    appendTo="body" />
+            </div>
+
+            <div class="campo-grupo">
+                <label for="prioridad" class="label-moderno">Prioridad</label>
+                <p-select 
+                    id="prioridad" 
+                    formControlName="prioridad" 
+                    [options]="prioridades" 
+                    placeholder="Sin prioridad" 
+                    appendTo="body" />
+            </div>
+
+            <div class="campo-grupo">
+                <label for="responsable" class="label-moderno">Responsable</label>
+                <input 
+                    pInputText 
+                    type="text" 
+                    id="responsable" 
+                    placeholder="Ej. Juan Pérez" 
+                    formControlName="responsable" />
+            </div>
+
+            <div class="campo-grupo">
+                <label for="fechaEntrega" class="label-moderno">Fecha de Entrega</label>
+                <input 
+                    type="date" 
+                    id="fechaEntrega" 
+                    formControlName="fechaEntrega"
+                    class="p-inputtext"
+                    style="width: 100%;" />
+            </div>
             
             <div class="form-acciones">
                 <button 

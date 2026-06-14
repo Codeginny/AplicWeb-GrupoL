@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColum
 import { EstadosProyectosEnum } from "../enums/estados-proyectos.enum";
 import { Cliente } from "./cliente.entity";
 import { Tarea } from "./tarea.entity";
+import { Columna } from "./columna.entity";
 
 @Entity({ name: "proyectos" })
 export class Proyecto {
@@ -15,8 +16,8 @@ export class Proyecto {
     @Column({ type: 'enum', enum: EstadosProyectosEnum })
     estado!: EstadosProyectosEnum
 
-    @Column({ name: "id_cliente" })
-    idCliente!: number;
+    @Column({ name: "id_cliente", nullable: true })
+    idCliente!: number | null;
 
     @ManyToOne(()=>Cliente)
     @JoinColumn({name: "id_cliente"})
@@ -24,5 +25,8 @@ export class Proyecto {
 
     @OneToMany(()=>Tarea, (tarea)=> tarea.proyecto)
     tareas!: Tarea[]
+
+    @OneToMany(()=>Columna, (columna)=> columna.proyecto, { cascade: true })
+    columnas!: Columna[]
 
 }

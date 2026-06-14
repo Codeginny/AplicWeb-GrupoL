@@ -8,7 +8,6 @@ export class UpdateTareaDto {
 
     @ApiProperty({ required: false })
     @IsString()
-    @IsNotEmpty()
     @IsOptional()
     descripcion?: string;
 

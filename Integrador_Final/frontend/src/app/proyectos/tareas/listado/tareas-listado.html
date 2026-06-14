@@ -93,12 +93,22 @@
                         style="min-height: 400px; display: flex; flex-direction: column; gap: 0.85rem;">
                         
                         @for (tarea of (columna.tareas | filtroTareas: searchQuery()); track tarea.id) {
-                            <div class="kanban-card" cdkDrag>
+                            <div class="kanban-card" cdkDrag (click)="abrirDetalleTarea(tarea)">
                                 <div class="card-body">
                                     <div class="card-title-row">
                                         <i [class]="'pi pi-bookmark-fill card-icon ' + (columna.orden === 1 ? 'text-red' : columna.orden === 2 ? 'text-blue' : 'text-green')"></i>
-                                        <span class="card-title">{{ tarea.descripcion }}</span>
+                                        <span class="card-title">Tarea {{ tarea.id }}</span>
                                     </div>
+                                    <div class="card-description" style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; line-height: 1.4;">
+                                        {{ tarea.descripcion | slice:0:60 }}{{ tarea.descripcion.length > 60 ? '...' : '' }}
+                                    </div>
+                                    
+                                    @if (tarea.idMetaIntermedia) {
+                                        <div class="meta-badge" style="display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; background: #f0f0f0; color: #555; font-size: 0.75rem; margin-top: 0.2rem; margin-bottom: 0.5rem; border: 1px solid #ddd;">
+                                            <i class="pi pi-flag" style="font-size: 0.7rem; margin-right: 0.2rem;"></i>
+                                            {{ getMetaNombre(tarea.idMetaIntermedia) }}
+                                        </div>
+                                    }
                                     
                                     @if (tarea.prioridad) {
                                         <div class="card-tags">
@@ -115,15 +125,21 @@
                                                 </div>
                                             }
                                             @if (tarea.fechaEntrega) {
-                                                <div class="card-date">
-                                                    <i class="pi pi-calendar"></i>
-                                                    <span>{{ tarea.fechaEntrega | date:'dd MMM, yyyy' }}</span>
+                                                <div class="card-date-alert" style="display: flex; flex-direction: column; gap: 0.2rem; align-items: flex-end;">
+                                                    <div class="card-date">
+                                                        <i class="pi pi-calendar"></i>
+                                                        <span>{{ tarea.fechaEntrega | date:'dd MMM, yyyy' }}</span>
+                                                    </div>
+                                                    <div [class]="'card-alert ' + getClasePlazo(tarea.fechaEntrega)" style="font-size: 0.75rem; display: flex; align-items: center; gap: 0.2rem;">
+                                                        <span>⏳</span>
+                                                        <span>{{ getTextoPlazo(tarea.fechaEntrega) }}</span>
+                                                    </div>
                                                 </div>
                                             }
                                         </div>
                                     }
                                     
-                                    <!-- Acciones flotantes / hover -->
+                                    <!-- botones flotantes para editar o borrar -->
                                     <div class="card-actions-overlay">
                                         <p-button 
                                             icon="pi pi-pencil" 
@@ -239,4 +255,64 @@
     (metasCambiadas)="cargarMetasIntermedias()"
     (onHide)="onMetasIntermediasGestionClosed()">
 </app-listado-meta-intermedia>
+
+<!-- ventana modal para el detalle de la tarea -->
+<p-dialog 
+    header="Detalle de Tarea" 
+    [modal]="true" 
+    [(visible)]="detalleModalVisible" 
+    [style]="{ width: '30rem' }">
+    @if (tareaDetalleSeleccionada()) {
+        <div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1rem;">
+            <div>
+                <span style="font-weight: 600; color: #555; display: block; margin-bottom: 0.2rem;">Título / ID</span>
+                <span style="font-size: 1.1rem;">Tarea {{ tareaDetalleSeleccionada()?.id }}</span>
+            </div>
+            
+            @if (tareaDetalleSeleccionada()?.idMetaIntermedia) {
+                <div>
+                    <span style="font-weight: 600; color: #555; display: block; margin-bottom: 0.2rem;">Meta Intermedia</span>
+                    <span style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.6rem; background: #e9ecef; border-radius: 4px; font-size: 0.9rem;">
+                        <i class="pi pi-flag" style="color: #666;"></i>
+                        {{ getMetaNombre(tareaDetalleSeleccionada()?.idMetaIntermedia) }}
+                    </span>
+                </div>
+            }
+
+            <div>
+                <span style="font-weight: 600; color: #555; display: block; margin-bottom: 0.2rem;">Descripción / Instrucciones</span>
+                <textarea 
+                    class="p-inputtext" 
+                    [ngModel]="editDescripcionValue()" 
+                    (ngModelChange)="editDescripcionValue.set($event)"
+                    rows="6" 
+                    style="width: 100%; resize: vertical; padding: 0.75rem; font-family: inherit; line-height: 1.5;" 
+                    placeholder="Escribí todo lo que se tiene que hacer...">
+                </textarea>
+            </div>
+            
+            @if (tareaDetalleSeleccionada()?.responsable || tareaDetalleSeleccionada()?.fechaEntrega) {
+                <div style="display: flex; gap: 2rem; border-top: 1px solid #eee; padding-top: 1rem;">
+                    @if (tareaDetalleSeleccionada()?.responsable) {
+                        <div>
+                            <span style="font-weight: 600; color: #555; display: block; margin-bottom: 0.2rem;">Responsable</span>
+                            <span>{{ tareaDetalleSeleccionada()?.responsable }}</span>
+                        </div>
+                    }
+                    @if (tareaDetalleSeleccionada()?.fechaEntrega) {
+                        <div>
+                            <span style="font-weight: 600; color: #555; display: block; margin-bottom: 0.2rem;">Vencimiento</span>
+                            <span>{{ tareaDetalleSeleccionada()?.fechaEntrega | date:'dd MMM, yyyy' }}</span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+    
+    <ng-template pTemplate="footer">
+        <p-button label="Cancelar" [text]="true" severity="secondary" (click)="detalleModalVisible.set(false)"></p-button>
+        <p-button label="Guardar" icon="pi pi-check" styleClass="p-button-primary" (click)="guardarDetalleTarea()"></p-button>
+    </ng-template>
+</p-dialog>
 

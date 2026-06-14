@@ -64,7 +64,6 @@ export class GestionTarea {
    constructor() {
         let previousVisible = false;
 
-        // Effect para abrir el diálogo y aplicar valores iniciales
         effect(() => {
             const isOpen = this.visible();
             const tarea = this.tareaSeleccionada();
@@ -76,10 +75,6 @@ export class GestionTarea {
 
         
     }
-
-
-
-    
 
     private aplicarValoresAlFormulario(tarea: ListTareaDTO | null): void {
         if (tarea) {

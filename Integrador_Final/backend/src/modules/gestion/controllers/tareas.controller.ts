@@ -10,8 +10,8 @@ export class TareasController {
 
     constructor(private readonly tareasService: TareasService) { }
 
-    @ApiBearerAuth()//ESTO ES PARA DECIRLE A SWAGGER QUE MI AUTENTICACION VA  ESTAR PROTEGIDA CON BEARER TOKEN, ASI QUE ME VA A MOSTRAR EL BOTON DE "AUTHORIZE" PARA QUE PUEDA INGRESAR MI TOKEN DE AUT  
-    @UseGuards(AuthGuard)//28:12 Video 3 - Unidad 2 - Practica - AGREGO GUARDIAS PARA PROTEGER LA RUTA DE CREACION DE TAREAS, SOLO USUARIOS AUTENTICADOS PODRAN ACCEDER A ELLA
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard)
     @Post()
     async crearTarea(@Body() dto: CreateTareaDto, @Param('idProyecto') idProyecto: number): Promise<{ id: number }> {
 

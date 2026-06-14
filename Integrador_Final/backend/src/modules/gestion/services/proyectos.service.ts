@@ -46,7 +46,7 @@ export class ProyectosService {
             throw new BadRequestException('Proyecto no encontrado');
         }
 
-        // Validar cliente solo cuando se envía un id (no null ni undefined)
+        // chequeo que el cliente exista y este activo
         if (dto.idCliente !== undefined && dto.idCliente !== null) {
 
             const clienteActivo: boolean = await this.clientesService.existeClienteActivoPorId(dto.idCliente);
@@ -101,7 +101,7 @@ export class ProyectosService {
             throw new BadRequestException('Proyecto no encontrado');
         }
 
-        // Auto-inicializar columnas si no existen o no son exactamente 3
+        // si no tiene columnas las creo automaticamente
         if (!proyecto.columnas || proyecto.columnas.length === 0) {
             const col1 = new Columna();
             col1.nombre = 'Pendiente';
@@ -126,7 +126,6 @@ export class ProyectosService {
 
             await this.repository.manager.save(Columna, [col1, col2, col3]);
             
-            // Recargar para obtener IDs de columnas
             proyecto = await this.repository.findOne({ 
                 where: { id }, 
                 relations: ['cliente', 'tareas', 'columnas', 'columnas.tareas'],
@@ -136,6 +135,7 @@ export class ProyectosService {
             });
             if (!proyecto) throw new BadRequestException('Proyecto no encontrado');
         } else if (proyecto.columnas.length < 3) {
+            // si tiene menos de 3 columnas agrego las que faltan
             const names = ['Pendiente', 'En proceso', 'Terminado'];
             const currentCount = proyecto.columnas.length;
             const newCols: Columna[] = [];
@@ -158,6 +158,7 @@ export class ProyectosService {
             });
             if (!proyecto) throw new BadRequestException('Proyecto no encontrado');
         } else if (proyecto.columnas.length > 3) {
+            // si tiene de mas borro las sobrantes
             proyecto.columnas.sort((a, b) => a.orden - b.orden);
             const toKeep = proyecto.columnas.slice(0, 3);
             const toDelete = proyecto.columnas.slice(3);
@@ -172,7 +173,7 @@ export class ProyectosService {
             if (!proyecto) throw new BadRequestException('Proyecto no encontrado');
         }
 
-        // Asegurarnos de que las 3 columnas tengan orden 1, 2, 3 y ordenarlas
+        // ordeno las columnas y corrijo el orden si hace falta
         proyecto.columnas.sort((a, b) => a.orden - b.orden);
         let orderChanged = false;
         for (let i = 0; i < proyecto.columnas.length; i++) {
@@ -186,7 +187,7 @@ export class ProyectosService {
             proyecto.columnas.sort((a, b) => a.orden - b.orden);
         }
 
-        // Mapear tareas huérfanas
+        // asigno columna a tareas que no tienen
         let changed = false;
         for (const t of proyecto.tareas) {
             if (!t.idColumna || !t.estado) {
@@ -212,7 +213,6 @@ export class ProyectosService {
         }
 
         if (changed) {
-            // Guardar cambios de asociación en la DB
             await this.repository.save(proyecto);
         }
 
@@ -225,7 +225,7 @@ export class ProyectosService {
             dto.cliente = proyecto.cliente.nombre;
         }
 
-        // Mapear tareas global list
+        // armo la lista de tareas para el dto
         const tareas: ListTareaDTO[] = [];
         for (const t of proyecto.tareas) {
             const tareaDto = new ListTareaDTO();
@@ -241,7 +241,7 @@ export class ProyectosService {
         }
         dto.tareas = tareas;
 
-        // Mapear columnas DTO
+        // armo las columnas del dto
         const columnasDto: ListColumnaDTO[] = [];
         for (const col of proyecto.columnas) {
             const colDto = new ListColumnaDTO();
@@ -251,7 +251,6 @@ export class ProyectosService {
             
             const colTareas: ListTareaDTO[] = [];
             if (col.tareas) {
-                // Ordenar tareas por ID
                 col.tareas.sort((a, b) => a.id - b.id);
                 for (const t of col.tareas) {
                     const tareaDto = new ListTareaDTO();

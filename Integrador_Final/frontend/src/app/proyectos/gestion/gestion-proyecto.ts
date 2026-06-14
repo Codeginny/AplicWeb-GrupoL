@@ -127,7 +127,6 @@ export class GestionProyecto {
 
         const formRawValue = this.form.getRawValue();
 
-        // El control 'cliente' ahora siempre es un número (id) o null gracias a optionValue="id"
         const clienteId: number | null = formRawValue.cliente != null ? Number(formRawValue.cliente) : null;
 
         if (this.proyectoSeleccionado()) {
@@ -157,7 +156,7 @@ export class GestionProyecto {
             const dto: CreateProyectoDTO = {
                 nombre: formRawValue.nombre,
                 idCliente: formRawValue.cliente,
-                fechaFinalizacionObjetivo: formRawValue.fechaFinalizacionObjetivo || null// Si no se proporciona una fecha, se envía como null para que el backend lo maneje correctamente, sino se enviaría como undefined y el backend no lo interpretaría como una ausencia de valor.
+                fechaFinalizacionObjetivo: formRawValue.fechaFinalizacionObjetivo || null
             };
             this.gestionProyectoApiClient.crearProyecto(dto).subscribe({
                 next: () => {

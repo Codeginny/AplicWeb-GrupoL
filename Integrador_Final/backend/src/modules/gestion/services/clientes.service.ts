@@ -37,8 +37,9 @@ export class ClientesService {
             throw new BadRequestException('No se puede dar de baja un cliente con proyectos relacionados');
         }
 
-        this.repository.merge(cliente, dto);// usamos merge para pisar los datos con lso que recibimos en el dto, asi no tenemos que asignar cada campo manualmente, merge se encarga de eso
-        await this.repository.save(cliente);// guardamos el cliente actualizado en la base de datos
+        // piso los campos con lo que viene en el dto
+        this.repository.merge(cliente, dto);
+        await this.repository.save(cliente);
     }
 
     async obtenerClientes(estado: EstadosClientesEnum): Promise<ListClienteDTO[]> {
@@ -49,9 +50,6 @@ export class ClientesService {
             whereCondition.estado = estado
         }
 
-        // obtenemos los clientes de la base de datos, 
-        // seleccionando solo los campos necesarios para el ListClienteDTO, 
-        // ordenados por id ascendente y aplicando la condicion where si se recibio el estado como parametro
         const clientes: Cliente[] = await this.repository.find({ 
         select: { 
             id: true, 

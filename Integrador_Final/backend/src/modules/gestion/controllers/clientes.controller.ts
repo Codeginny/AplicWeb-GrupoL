@@ -10,7 +10,7 @@ import { AuthGuard } from "../../auth/guards/auth.guard";
 @Controller('clientes')
 export class ClientesController {
 
-    constructor(private readonly clientesService: ClientesService) { }//inyectamos el servicio de clientes para poder usarlo en los metodos del controlador
+    constructor(private readonly clientesService: ClientesService) { }
 
     @ApiBearerAuth()
     @UseGuards(AuthGuard)
@@ -27,14 +27,14 @@ export class ClientesController {
     }
 
     @ApiBearerAuth()
-    @ApiOkResponse({ type: ListClienteDTO, isArray: true })// El endpoint devuelve un array de objetos ListClienteDTO para swagger para que la documentacion sea clara y muestre el formato de la respuesta
-    @ApiQuery({// para swagger, indica que el endpoint acepta un query param "estado" que es opcional y de tipo enum EstadosClientesEnum
+    @ApiOkResponse({ type: ListClienteDTO, isArray: true })
+    @ApiQuery({
         name: 'estado',
         required: false,
         enum: EstadosClientesEnum
     })
     @UseGuards(AuthGuard)     
-    @Get()// 
+    @Get()
     async obtenerClientes(@Query("estado") estado: EstadosClientesEnum): Promise<ListClienteDTO[]> {
         return await this.clientesService.obtenerClientes(estado);
     }

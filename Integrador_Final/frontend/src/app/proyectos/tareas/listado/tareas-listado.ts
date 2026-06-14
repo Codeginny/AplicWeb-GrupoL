@@ -16,8 +16,9 @@ import { EstadosTareasEnum } from "../estados-tareas-enum";
 import { FiltroTareasPipe } from "./filtro-tareas.pipe";
 import { ColumnaDTO } from "./columna-dto";
 import { ColumnasApiClient } from "./columnas-api-client";
-import { DatePipe } from "@angular/common";
+import { DatePipe, SlicePipe } from "@angular/common";
 import * as XLSX from 'xlsx';
+import { DialogModule } from 'primeng/dialog';
 
 import { GestionMetaIntermediaApiClient } from "../../meta-intermedia/gestion/gestion-meta-intermedia-api-client";
 import { ListMetaIntermediaDTO } from "../../meta-intermedia/listado/list-meta-intermedia.dto";
@@ -30,7 +31,7 @@ import { ListMetaIntermedia } from "../../meta-intermedia/listado/list-meta-inte
   selector: "app-tareas-listado",
   templateUrl: "./tareas-listado.html",
   styleUrls: ["./tareas-listado.css"],
-  imports: [TableModule, ButtonModule, Template, TooltipModule, GestionTarea, DragDropModule, FiltroTareasPipe, FormsModule, SelectModule, ListMetaIntermedia, DatePipe, ConfirmDialogModule],
+  imports: [TableModule, ButtonModule, Template, TooltipModule, GestionTarea, DragDropModule, FiltroTareasPipe, FormsModule, SelectModule, ListMetaIntermedia, DatePipe, SlicePipe, ConfirmDialogModule, DialogModule],
   providers: [ConfirmationService]
 
 })
@@ -67,6 +68,10 @@ export class TareasListado implements OnInit {
   dialogVisible: WritableSignal<boolean> = signal(false);
 
   dialogMetasIntermediasVisible = signal(false);
+
+  detalleModalVisible = signal(false);
+  tareaDetalleSeleccionada = signal<ListTareaDTO | null>(null);
+  editDescripcionValue = signal('');
 
   tareaSeleccionada: WritableSignal<ListTareaDTO | null> = signal<ListTareaDTO | null>(null);
 
@@ -138,14 +143,41 @@ export class TareasListado implements OnInit {
     this.metasIntermediasApiClient.obtenerMetasIntermedias(this.idProyecto()!).subscribe({
         next: (data) => {
             const metas = data.map(m => ({ ...m, id: Number(m.id) }));
-            console.log('METAS cargadas:', metas);
-            console.log('idMetaIntermedia de la tarea:', tarea.idMetaIntermedia, typeof tarea.idMetaIntermedia);
-            console.log('¿Existe match?', metas.some(m => m.id === Number(tarea.idMetaIntermedia)));
             this.metasIntermediasDisponibles.set(metas);
             this.dialogVisible.set(true);
         }
     });
-}
+  }
+
+  // abrimos la ventana de detalle de la tarea
+  abrirDetalleTarea(tarea: ListTareaDTO): void {
+    this.tareaDetalleSeleccionada.set(tarea);
+    this.editDescripcionValue.set(tarea.descripcion || '');
+    this.detalleModalVisible.set(true);
+  }
+
+  guardarDetalleTarea(): void {
+    const tarea = this.tareaDetalleSeleccionada();
+    if (!tarea) return;
+
+    const dto = { 
+      descripcion: this.editDescripcionValue(),
+      idMetaIntermedia: tarea.idMetaIntermedia || null,
+      idColumna: tarea.idColumna || null,
+      estado: tarea.estado
+    };
+
+    this.gestionTareaApiClient.actualizarTarea(this.idProyecto()!, tarea.id, dto).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Descripción actualizada.' });
+        this.detalleModalVisible.set(false);
+        this.refreshProyecto();
+      },
+      error: (err: any) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar.' });
+      }
+    });
+  }
 
   eliminarTarea(tarea: ListTareaDTO): void {
     this.confirmationService.confirm({
@@ -194,6 +226,7 @@ export class TareasListado implements OnInit {
     });
   }
 
+  // manejamos el evento de arrastrar y soltar
   drop(event: CdkDragDrop<ListTareaDTO[]>, nuevoColumnaId: number): void {
     if (event.previousContainer === event.container) {
       const array = [...event.container.data];
@@ -234,6 +267,7 @@ export class TareasListado implements OnInit {
     }
   }
 
+  // actualizamos el estado de la tarea en la base de datos
   actualizarColumnaTarea(tarea: ListTareaDTO, nuevoColumnaId: number): void {
     const targetCol = this.columnas().find(c => c.id === nuevoColumnaId);
     let nuevoEstado = EstadosTareasEnum.PENDIENTE;
@@ -244,9 +278,14 @@ export class TareasListado implements OnInit {
 
     const updateDto = {
       descripcion: tarea.descripcion,
-      idColumna: nuevoColumnaId,
+      prioridad: tarea.prioridad || null,
+      responsable: tarea.responsable || null,
+      fechaEntrega: tarea.fechaEntrega || null,
+      idMetaIntermedia: tarea.idMetaIntermedia || null,
+      idColumna: Number(nuevoColumnaId),
       estado: nuevoEstado
     };
+    
     this.gestionTareaApiClient.actualizarTarea(this.idProyecto(), tarea.id, updateDto).subscribe({
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Estado de la tarea actualizado.' });
@@ -254,52 +293,91 @@ export class TareasListado implements OnInit {
       },
       error: (error) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar el estado de la tarea' });
-        this.refreshProyecto();
       }
     });
+  }
+
+  getMetaNombre(idMeta: number | null | undefined): string {
+    if (!idMeta) return '';
+    const meta = this.metasIntermediasDisponibles().find(m => m.id === idMeta);
+    return meta ? meta.nombre : '';
+  }
+
+  getDiasRestantes(fechaEntrega: string | null | undefined): number | null {
+    if (!fechaEntrega) return null;
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    // ajustamos el formato de la fecha para evitar problemas con la zona horaria
+    const partes = fechaEntrega.split('-');
+    if (partes.length === 3) {
+      const entrega = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2].substring(0, 2)));
+      entrega.setHours(0, 0, 0, 0);
+      const diffTime = entrega.getTime() - hoy.getTime();
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+    const entrega = new Date(fechaEntrega);
+    entrega.setHours(0, 0, 0, 0);
+    const diffTime = entrega.getTime() - hoy.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  getTextoPlazo(fechaEntrega: string | null | undefined): string {
+    const dias = this.getDiasRestantes(fechaEntrega);
+    if (dias === null) return '';
+    if (dias < 0) return `Vencida (hace ${Math.abs(dias)} días)`;
+    if (dias <= 3) return `Próximo a finalizar (${dias} días)`;
+    return 'Al día';
+  }
+
+  getClasePlazo(fechaEntrega: string | null | undefined): string {
+    const dias = this.getDiasRestantes(fechaEntrega);
+    if (dias === null) return '';
+    return dias <= 3 ? 'text-red font-semibold' : 'text-green font-semibold';
   }
 
   abrirDialog(): void {
     this.dialogVisible.set(true);
   }
 
-  //  Exportar a Excel
   exportarExcel(): void {
   const tareas = this.tareas();
   
-  // Mapear los datos a un formato plano para Excel
-  const datosExcel = tareas.map(tarea => ({
-    'Descripcion': tarea.descripcion,
-    'Tarea': tarea.estado
+  // preparamos las columnas para exportar a excel
+  const datosExcel = tareas.map((tarea: ListTareaDTO) => ({
+    'Título': `Tarea ${tarea.id}`,
+    'Descripción': tarea.descripcion,
+    'Estado': tarea.estado || 'PENDIENTE',
+    'Responsable': tarea.responsable || 'Sin asignar',
+    'Prioridad': tarea.prioridad || 'No definida',
+    'Fecha de Entrega': tarea.fechaEntrega || 'Sin fecha'
   }));
 
-  // Crear hoja de trabajo y libro
   const worksheet = XLSX.utils.json_to_sheet(datosExcel);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Tareas');
 
-  // Generar archivo y forzar descarga
+  // generamos y descargamos el archivo excel
   XLSX.writeFile(workbook, `tareas${new Date().toISOString().slice(0,19)}.xlsx`);
 }
 
-//Exportar a CSV
 exportarCSV(): void {
   const tareas = this.tareas();
   
-  // Mapear los datos a un formato plano para CSV
-  const datosCSV = tareas.map(tarea => ({
-    'Descripcion': tarea.descripcion,
-    'Estado': tarea.estado
+  // preparamos las columnas para el archivo csv
+  const datosCSV = tareas.map((tarea: ListTareaDTO) => ({
+    'Título': `Tarea ${tarea.id}`,
+    'Descripción': tarea.descripcion,
+    'Estado': tarea.estado || 'PENDIENTE',
+    'Responsable': tarea.responsable || 'Sin asignar',
+    'Prioridad': tarea.prioridad || 'No definida',
+    'Fecha de Entrega': tarea.fechaEntrega || 'Sin fecha'
   }));
 
-  // Convertir a CSV
   let csvData = this.convertirACSV(datosCSV);
   
-  // Agregar BOM (Byte Order Mark) para caracteres UTF-8
-  // Esto es crucial para que Excel y otros programas lean bien los acentos
+  // agregamos el BOM para que excel lea bien las tildes
   const blob = new Blob(['\uFEFF' + csvData], { type: 'text/csv;charset=utf-8;' });
   
-  // Crear link y descargar
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);
   link.setAttribute('href', url);
@@ -312,22 +390,17 @@ exportarCSV(): void {
 }
 
 
-// Método auxiliar para convertir JSON a CSV
 private convertirACSV(data: any[]): string {
   if (!data || data.length === 0) return '';
   
-  // Obtener las cabeceras
   const headers = Object.keys(data[0]);
   
-  // Crear fila de cabeceras
   const csvRows = [];
   csvRows.push(headers.join(','));
   
-  // Crear filas de datos
   for (const row of data) {
     const values = headers.map(header => {
       let value = row[header]?.toString() || '';
-      // Escapar comillas dobles y envolver en comillas si contiene comas
       value = value.replace(/"/g, '""');
       if (value.includes(',') || value.includes('"') || value.includes('\n')) {
         value = `"${value}"`;
@@ -343,14 +416,13 @@ private convertirACSV(data: any[]): string {
   asignarMetaIntermedia(tarea: ListTareaDTO, idMeta: number | null): void {
     
     const dto = { descripcion: tarea.descripcion, idMetaIntermedia: idMeta };
-    console.log("Asignando meta intermedia", dto); 
 
     this.gestionTareaApiClient.actualizarTarea(this.idProyecto()!, tarea.id, dto).subscribe({
         next: () => {
           
             const proyectoActual = this.proyecto();
             if (proyectoActual) {
-                const tareasActualizadas = proyectoActual.tareas.map(t =>
+                const tareasActualizadas = proyectoActual.tareas.map((t: ListTareaDTO) =>
                     t.id === tarea.id ? { ...t, idMetaIntermedia: idMeta } : t
                 );
                 this.proyecto.set({ ...proyectoActual, tareas: tareasActualizadas });
@@ -358,7 +430,7 @@ private convertirACSV(data: any[]): string {
             this.messageService.add({ severity: 'success', summary: 'Actualizada', detail: 'Meta asignada correctamente.' });
             this.cargarMetasIntermedias(); 
         },
-        error: (err) => {
+        error: (err: any) => {
             console.error(err);
             this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || 'No se pudo asignar la meta.' });
         }

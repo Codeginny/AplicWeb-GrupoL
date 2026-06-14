@@ -10,13 +10,12 @@ import { AuthGuard } from "../../auth/guards/auth.guard";
 @Controller('proyectos')
 export class ProyectosController {
 
-    constructor(private readonly proyectosService: ProyectosService) { }// inyectamos el servicio de proyectos para poder usarlo en los metodos del controlador
+    constructor(private readonly proyectosService: ProyectosService) { }
 
     @ApiBearerAuth()
     @UseGuards(AuthGuard)
     @Post()
-    async crearProyecto(@Body() dto: CreateProyectoDto): Promise<{ id: number }> {//  el endpoint recibe un objeto 
-    // CreateProyectoDto en el body de la solicitud y devuelve un objeto con el id del proyecto creado
+    async crearProyecto(@Body() dto: CreateProyectoDto): Promise<{ id: number }> {
 
        return await this.proyectosService.crearProyecto(dto);
 

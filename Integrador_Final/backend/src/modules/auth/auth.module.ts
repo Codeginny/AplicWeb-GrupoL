@@ -12,7 +12,7 @@ import { AuthGuard } from "./guards/auth.guard";
     controllers: [AuthController],
     providers: [UsuariosService, AuthService, AuthGuard],
     imports: [TypeOrmModule.forFeature([Usuario]),
-    JwtModule.registerAsync({//Minuto 10 - Video 3 Practica - Unidad 2
+    JwtModule.registerAsync({
         inject: [ConfigService],
         global: true,
         useFactory: (configService: ConfigService) => {

@@ -27,3 +27,4 @@ export class ListTareaDTO {
     @ApiProperty({ required: false, nullable: true }) 
     idMetaIntermedia?: number | null;
 
+}

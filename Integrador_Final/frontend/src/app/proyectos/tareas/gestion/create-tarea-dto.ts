@@ -4,4 +4,5 @@ export interface CreateTareaDTO {
     responsable?: string | null;
     fechaEntrega?: string | null;
     idColumna?: number | null;
+    idMetaIntermedia?: number | null;
 }

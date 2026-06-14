@@ -29,7 +29,8 @@
                     optionLabel="nombre"
                     optionValue="id"
                     placeholder="Seleccionar columna" 
-                    appendTo="body" />
+                    appendTo="body" 
+                    />
             </div>
 
             <div class="campo-grupo">
@@ -38,6 +39,8 @@
                     id="prioridad" 
                     formControlName="prioridad" 
                     [options]="prioridades" 
+                    optionLabel="label" 
+                    optionValue="value"
                     placeholder="Sin prioridad" 
                     appendTo="body" />
             </div>
@@ -50,6 +53,20 @@
                     id="responsable" 
                     placeholder="Ej. Juan Pérez" 
                     formControlName="responsable" />
+            </div>
+
+            <div class="campo-grupo">
+                <label for="idMetaIntermedia" class="label-moderno">Meta Intermedia</label>
+               <p-select 
+                id="idMetaIntermedia" 
+                formControlName="idMetaIntermedia" 
+                [options]="metas()" 
+                optionLabel="nombre"
+                optionValue="id"
+                placeholder="Seleccionar meta"
+                [showClear]="true"
+                appendTo="body"
+                scrollHeight="400px" />
             </div>
 
             <div class="campo-grupo">

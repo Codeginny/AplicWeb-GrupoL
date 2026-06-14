@@ -262,6 +262,7 @@ export class ProyectosService {
                     tareaDto.prioridad = t.prioridad;
                     tareaDto.responsable = t.responsable;
                     tareaDto.fechaEntrega = t.fechaEntrega;
+                    tareaDto.idMetaIntermedia = t.idMetaIntermedia;
                     colTareas.push(tareaDto);
                 }
             }

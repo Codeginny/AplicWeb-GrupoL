@@ -3,6 +3,7 @@ import { MessageService, ConfirmationService } from "primeng/api";
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ListTareaDTO } from "./list-tarea-dto";
 import { ButtonModule } from "primeng/button";
+import { TableModule } from 'primeng/table';
 import { Template } from "../../../template/template";
 import { TooltipModule } from 'primeng/tooltip';
 import { GestionTarea } from "../gestion/gestion-tarea";
@@ -10,11 +11,9 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from "@angular/router";
 import { ProyectoApiClient } from "./proyecto-api-client";
 import { ProyectoDTO } from "./proyecto-dto";
-import { GestionTareaApiClient } from "../gestion/gestion-tarea-api-client";
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { EstadosTareasEnum } from "../estados-tareas-enum";
 import { FiltroTareasPipe } from "./filtro-tareas.pipe";
-import { FormsModule } from "@angular/forms";
 import { ColumnaDTO } from "./columna-dto";
 import { ColumnasApiClient } from "./columnas-api-client";
 import { DatePipe } from "@angular/common";
@@ -77,6 +76,10 @@ export class TareasListado implements OnInit {
 
   private readonly route = inject(ActivatedRoute);
 
+   tareas: Signal<ListTareaDTO[]> = computed(() => {
+    return this.proyecto()?.tareas || [];
+  });
+
   constructor() {
     effect(() => {
       if (!this.dialogVisible()) {
@@ -116,21 +119,33 @@ export class TareasListado implements OnInit {
   }
 
    cargarMetasIntermedias(): void {
-    this.metasIntermediasApiClient.obtenerMetasIntermedias(this.idProyecto()!).subscribe({
-      next: (data) => this.metasIntermediasDisponibles.set(data),
-      error: () => console.error("Error cargando metas intermedias")
-    });
+      this.metasIntermediasApiClient.obtenerMetasIntermedias(this.idProyecto()!).subscribe({
+          next: (data) => this.metasIntermediasDisponibles.set(
+              data.map(m => ({ ...m, id: Number(m.id) }))
+          ),
+          error: () => console.error("Error cargando metas intermedias")
+      });
   }
 
   crearTarea(): void {
+    this.cargarMetasIntermedias();
     this.tareaSeleccionada.set(null);
     this.dialogVisible.set(true);
   }
 
   editarTarea(tarea: ListTareaDTO): void {
-    this.dialogVisible.set(true);
     this.tareaSeleccionada.set(tarea);
-  }
+    this.metasIntermediasApiClient.obtenerMetasIntermedias(this.idProyecto()!).subscribe({
+        next: (data) => {
+            const metas = data.map(m => ({ ...m, id: Number(m.id) }));
+            console.log('METAS cargadas:', metas);
+            console.log('idMetaIntermedia de la tarea:', tarea.idMetaIntermedia, typeof tarea.idMetaIntermedia);
+            console.log('¿Existe match?', metas.some(m => m.id === Number(tarea.idMetaIntermedia)));
+            this.metasIntermediasDisponibles.set(metas);
+            this.dialogVisible.set(true);
+        }
+    });
+}
 
   eliminarTarea(tarea: ListTareaDTO): void {
     this.confirmationService.confirm({
@@ -327,10 +342,10 @@ private convertirACSV(data: any[]): string {
   
   asignarMetaIntermedia(tarea: ListTareaDTO, idMeta: number | null): void {
     
-    const dto = { idMetaIntermedia: idMeta };
+    const dto = { descripcion: tarea.descripcion, idMetaIntermedia: idMeta };
     console.log("Asignando meta intermedia", dto); 
 
-    this.gestionTarea.actualizarTarea(this.idProyecto()!, tarea.id, dto).subscribe({
+    this.gestionTareaApiClient.actualizarTarea(this.idProyecto()!, tarea.id, dto).subscribe({
         next: () => {
           
             const proyectoActual = this.proyecto();

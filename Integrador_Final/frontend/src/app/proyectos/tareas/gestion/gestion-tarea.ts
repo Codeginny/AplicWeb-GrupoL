@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, input, InputSignal, model, ModelSignal, Signal, signal, WritableSignal } from "@angular/core";
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule, Validators, FormsModule } from "@angular/forms";
 import { DialogModule } from "primeng/dialog";
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
@@ -11,18 +11,21 @@ import { EstadosTareasEnum } from "../estados-tareas-enum";
 import { UpdateTareaDto } from "./update-tarea-dto";
 import { CreateTareaDTO } from "./create-tarea-dto";
 import { ColumnaDTO } from "../listado/columna-dto";
+import { ListMetaIntermediaDTO } from "../../meta-intermedia/listado/list-meta-intermedia.dto";
+import { GestionMetaIntermediaApiClient } from "../../meta-intermedia/gestion/gestion-meta-intermedia-api-client";
 
 @Component({
     selector: "app-gestion-tarea",
     templateUrl: "./gestion-tarea.html",
     styleUrls: ["./gestion-tarea.css"],
-    imports: [DialogModule, InputTextModule, SelectModule, ButtonModule, ReactiveFormsModule]
+    imports: [DialogModule, InputTextModule, SelectModule, ButtonModule, ReactiveFormsModule, FormsModule]
 })
 export class GestionTarea {
 
     visible: ModelSignal<boolean> = model(false);
 
     tareaSeleccionada: ModelSignal<ListTareaDTO | null> = model<ListTareaDTO | null>(null);
+    metas: InputSignal<ListMetaIntermediaDTO[]> = input<ListMetaIntermediaDTO[]>([]);
 
     columnas: InputSignal<ColumnaDTO[]> = input<ColumnaDTO[]>([]);
 
@@ -31,6 +34,10 @@ export class GestionTarea {
     private readonly gestionTareaApiClient = inject(GestionTareaApiClient);
 
     readonly idProyecto: InputSignal<number | null> = input<number | null>(null);
+    
+    private readonly metasIntermediasApiClient = inject(GestionMetaIntermediaApiClient);
+
+    metasIntermediasDisponibles = signal<ListMetaIntermediaDTO[]>([]);
 
     header: Signal<string> = computed(() => {
         if (this.tareaSeleccionada()) {
@@ -39,38 +46,64 @@ export class GestionTarea {
         return "Crear tarea";
     });
 
-    readonly prioridades: string[] = ["Baja", "Media", "Alta"];
+    readonly prioridades = [
+    { label: "Baja", value: "Baja" },
+    { label: "Media", value: "Media" },
+    { label: "Alta", value: "Alta" }
+];
 
     readonly form: FormGroup = new FormGroup({
         descripcion: new FormControl("", [Validators.required]),
         idColumna: new FormControl(null),
         prioridad: new FormControl(null),
         responsable: new FormControl(""),
-        fechaEntrega: new FormControl(null)
+        fechaEntrega: new FormControl(null),
+        idMetaIntermedia: new FormControl(null)
     });
 
-    constructor() {
+   constructor() {
+        let previousVisible = false;
+
+        // Effect para abrir el diálogo y aplicar valores iniciales
         effect(() => {
-            if (this.tareaSeleccionada()) {
-                this.form.patchValue({
-                    descripcion: this.tareaSeleccionada()?.descripcion,
-                    idColumna: this.tareaSeleccionada()?.idColumna || null,
-                    prioridad: this.tareaSeleccionada()?.prioridad || null,
-                    responsable: this.tareaSeleccionada()?.responsable || "",
-                    fechaEntrega: this.tareaSeleccionada()?.fechaEntrega || null
-                });
+            const isOpen = this.visible();
+            const tarea = this.tareaSeleccionada();
+            if (isOpen && !previousVisible) {
+                this.aplicarValoresAlFormulario(tarea);
             }
-            else {
-                this.form.reset({
-                    descripcion: "",
-                    idColumna: null,
-                    prioridad: null,
-                    responsable: "",
-                    fechaEntrega: null
-                });
-            }
+            previousVisible = isOpen;
         });
+
+        
     }
+
+
+
+    
+
+    private aplicarValoresAlFormulario(tarea: ListTareaDTO | null): void {
+        if (tarea) {
+            const idMeta = tarea.idMetaIntermedia != null ? Number(tarea.idMetaIntermedia) : null;
+            this.form.patchValue({
+                descripcion: tarea.descripcion,
+                idColumna: tarea.idColumna ?? null,
+                prioridad: tarea.prioridad ?? null,
+                responsable: tarea.responsable ?? '',
+                fechaEntrega: tarea.fechaEntrega ?? null,
+                idMetaIntermedia: idMeta
+            });
+        } else {
+            this.form.reset({
+                descripcion: '',
+                idColumna: this.columnas().length > 0 ? this.columnas()[0].id : null,
+                prioridad: null,
+                responsable: '',
+                fechaEntrega: null,
+                idMetaIntermedia: null
+            });
+        }
+    }
+
 
     cerrarDialog(): void {
         this.tareaSeleccionada.set(null);
@@ -79,7 +112,8 @@ export class GestionTarea {
             idColumna: null,
             prioridad: null,
             responsable: "",
-            fechaEntrega: null
+            fechaEntrega: null,
+            idMetaIntermedia: null
         });
         this.visible.set(false);
     }
@@ -101,8 +135,9 @@ export class GestionTarea {
                 responsable: formRawValue.responsable === null || formRawValue.responsable === undefined ? null : formRawValue.responsable,
                 fechaEntrega: formRawValue.fechaEntrega === null || formRawValue.fechaEntrega === undefined ? null : formRawValue.fechaEntrega,
                 estado: formRawValue.estado,
-                idMetaIntermedia: this.tareaSeleccionada()?.idMetaIntermedia || null
+                idMetaIntermedia: formRawValue.idMetaIntermedia || null
             };
+            
             this.gestionTareaApiClient.actualizarTarea(this.idProyecto(), this.tareaSeleccionada()?.id!, dto).subscribe({
                 next: () => {
                     this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Tarea actualizada correctamente.' });
@@ -125,8 +160,10 @@ export class GestionTarea {
                 prioridad: formRawValue.prioridad || undefined,
                 responsable: formRawValue.responsable || undefined,
                 fechaEntrega: formRawValue.fechaEntrega || undefined,
-                idColumna: formRawValue.idColumna || (this.columnas().length > 0 ? this.columnas()[0].id : null)
+                idColumna: formRawValue.idColumna || (this.columnas().length > 0 ? this.columnas()[0].id : null),
+                idMetaIntermedia: formRawValue.idMetaIntermedia ?? null
             };
+           
             this.gestionTareaApiClient.crearTarea(this.idProyecto(), dto).subscribe({
                 next: () => {
                     this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Tarea creada correctamente.' });
@@ -145,5 +182,6 @@ export class GestionTarea {
             });
         }
     }
+
 
 }

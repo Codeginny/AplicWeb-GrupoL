@@ -456,6 +456,9 @@
   background-color: #b71c1c !important;
   border-color: #b71c1c !important;
   transform: translateY(-1px);
+
+}
+
 /* Contenedor de la tabla: scroll externo */
 .tabla-wrapper {
   background: var(--color-tarjeta);

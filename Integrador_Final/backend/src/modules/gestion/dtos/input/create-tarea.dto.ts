@@ -28,4 +28,9 @@ export class CreateTareaDto {
     @IsInt()
     idColumna?: number | null;
 
+    @ApiProperty({ required: false, nullable: true })
+    @IsOptional()
+    @IsInt()
+    idMetaIntermedia?: number | null;
+
 }

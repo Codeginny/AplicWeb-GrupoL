@@ -9,3 +9,4 @@ export interface ListTareaDTO{
     responsable?: string | null;
     fechaEntrega?: string | null;
     idMetaIntermedia?: number | null;
+}

@@ -21,44 +21,36 @@
         </div>
 
         <div class="page-header">
-            <div>
-                <h2 class="page-title">Tareas</h2>
-                <p class="page-subtitle">Tareas del proyecto.</p>
-            </div>
-            <div class="header-actions" style="display: flex; gap: 1rem; align-items: center;">
-                <div class="search-box-wrapper" style="position: relative;">
-                    <i class="pi pi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #bcaca0;"></i>
-                    <input 
-                        type="text" 
-                        class="p-inputtext" 
-                        placeholder="Buscar tareas..." 
-                        [ngModel]="searchQuery()" 
-                        (ngModelChange)="searchQuery.set($event)" 
-                        style="padding-left: 2.2rem !important; width: 240px;" />
-                </div>
+    <div>
+        <h2 class="page-title">Tareas</h2>
+        <p class="page-subtitle">Tareas del proyecto.</p>
+    </div>
+    
+    <div class="header-actions" style="display: flex; gap: 1rem; align-items: center;">
+        <div class="search-box-wrapper" style="position: relative;">
+            <i class="pi pi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #bcaca0;"></i>
+            <input 
+                type="text" 
+                class="p-inputtext" 
+                placeholder="Buscar tareas..." 
+                [ngModel]="searchQuery()" 
+                (ngModelChange)="searchQuery.set($event)" 
+                style="padding-left: 2.2rem !important; width: 240px;" />
+        </div>
+    
+        <div class="botones-accion">
+            <p-button icon="pi pi-file-excel" styleClass="btn-exportar-compacto" pTooltip="Exportar a Excel" tooltipPosition="bottom" (click)="exportarExcel()"></p-button>
+            <p-button icon="pi pi-file-export" styleClass="btn-exportar-csv" pTooltip="Exportar a CSV" tooltipPosition="bottom" (click)="exportarCSV()"></p-button>
             
-            <div class="botones-accion">
+            <div class="separador-vertical"></div>
+            
             <div class="header-buttons">
-                <p-button 
-                    icon="pi pi-tags" 
-                    label="Gestionar Metas" 
-                    severity="secondary" 
-                    [text]="true"
-                    styleClass="btn-primario"
-                    (click)="abrirGestionMetasIntermedias()">
-                </p-button>
-                <p-button 
-                    id="boton-crear-tarea" 
-                    icon="pi pi-plus" 
-                    label="Crear Tarea" 
-                    styleClass="btn-primario"
-                    (click)="crearTarea()">
-                </p-button>
+                <p-button icon="pi pi-tags" label="Gestionar Metas" severity="secondary" [text]="true" styleClass="btn-primario" (click)="abrirGestionMetasIntermedias()"></p-button>
+                <p-button id="boton-crear-tarea" icon="pi pi-plus" label="Crear Tarea" styleClass="btn-primario" (click)="crearTarea()"></p-button>
             </div>
         </div>
-
-        <!-- Tablero Kanban estilo Notion -->
-        <div class="kanban-board" cdkDropListGroup>
+    </div>
+</div> <div class="kanban-board" cdkDropListGroup>
             
             @for (columna of columnas(); track columna.id) {
                 <div class="kanban-column">
@@ -161,36 +153,14 @@
                 </div>
             }
 
-
-
-                    styleClass="btn-primario btn-crear"
-                    (click)="crearTarea()">
-                </p-button>
-
-                <div class="separador-vertical"></div>
-                
-                <p-button
-                    icon="pi pi-file-excel"   
-                    styleClass="btn-exportar-compacto"  
-                    pTooltip="Exportar a Excel"
-                    tooltipPosition="bottom"
-                    (click)="exportarExcel()">
-                </p-button>
-
-                <p-button
-                    icon="pi pi-file-export"   
-                    styleClass="btn-exportar-csv"  
-                    pTooltip="Exportar a CSV"
-                    tooltipPosition="bottom"
-                    (click)="exportarCSV()">
-                </p-button>
+               
                
             </div>
         </div>
-        </div>
+        
 
     
-        <div class="tabla-wrapper">
+        <div class="tabla-wrapper" style="display: none;">
             <p-table 
                 [value]="tareas()" 
                 [resizableColumns]="false"
@@ -249,11 +219,18 @@
                 </ng-template>
             </p-table>
         </div>
-    </div>
+   
 </app-template>
 
 
-<app-gestion-tarea [(visible)]="dialogVisible" [idProyecto]="idProyecto()" [(tareaSeleccionada)]="tareaSeleccionada" [columnas]="columnas()"></app-gestion-tarea>
+<app-gestion-tarea 
+    [(visible)]="dialogVisible" 
+    [idProyecto]="idProyecto()" 
+    [(tareaSeleccionada)]="tareaSeleccionada" 
+    [columnas]="columnas()"
+    [metas]="metasIntermediasDisponibles()">
+</app-gestion-tarea>
+
 <p-confirmDialog styleClass="custom-confirm-dialog"></p-confirmDialog>
 
 <app-listado-meta-intermedia

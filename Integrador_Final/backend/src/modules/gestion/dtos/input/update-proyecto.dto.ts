@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsOptional, IsString, IsNotEmpty, IsNumber } from "class-validator";
+import { IsEnum, IsOptional, IsString, IsNotEmpty, IsNumber, IsDateString } from "class-validator";
 import { EstadosProyectosEnum } from "../../enums/estados-proyectos.enum";
 
 export class UpdateProyectoDto {

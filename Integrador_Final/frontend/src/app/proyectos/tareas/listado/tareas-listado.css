@@ -72,6 +72,390 @@
   gap: 0.75rem;
 }
 
+/* Tablero Kanban estilo Notion */
+.kanban-board {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  overflow-x: auto;
+  padding: 1rem 0;
+  width: 100%;
+}
+
+.kanban-column {
+  flex: 1;
+  min-width: 320px;
+  max-width: 400px;
+  background: #faf9f6;
+  border: 1px solid rgba(220, 215, 205, 0.5);
+  border-radius: 16px;
+  padding: 1.25rem 1rem;
+  box-shadow: 0 4px 12px -8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 65vh;
+  transition: all 0.2s ease;
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(220, 215, 205, 0.4);
+}
+
+.column-title-pill {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.state-pendiente {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.state-en-progreso {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.state-finalizada {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.column-count {
+  background: rgba(220, 215, 205, 0.3);
+  border-radius: 8px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  color: #7a756b;
+  font-weight: 700;
+}
+
+.column-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  flex: 1;
+  min-height: 450px;
+  padding: 0.25rem;
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.column-list.cdk-drop-list-dragging {
+  background-color: rgba(220, 215, 205, 0.1);
+}
+
+.column-list.cdk-drop-list-receiving {
+  background-color: rgba(220, 215, 205, 0.2);
+  border: 1px dashed #b7a078;
+}
+
+/* Tarjeta Kanban */
+.kanban-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e9e6df;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  cursor: grab;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kanban-card:active {
+  cursor: grabbing;
+}
+
+.kanban-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(183, 160, 120, 0.15);
+  border-color: #d8ceb9;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.card-icon {
+  font-size: 0.95rem;
+  margin-top: 0.15rem;
+}
+
+.text-gold {
+  color: #b7a078;
+}
+
+.text-red {
+  color: #e53935;
+}
+
+.text-blue {
+  color: #2196f3;
+}
+
+.text-green {
+  color: #4caf50;
+}
+
+.card-title {
+  font-size: 0.92rem;
+  color: var(--color-texto-oscuro);
+  line-height: 1.4;
+  font-weight: 550;
+}
+
+.text-strike {
+  text-decoration: line-through;
+  color: #a39c94;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.badge-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.priority-high,
+.priority-alta {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.priority-medium,
+.priority-media {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+.priority-low,
+.priority-baja {
+  background-color: #eceff1;
+  color: #455a64;
+}
+
+.project-track {
+  background-color: #e0f2f1;
+  color: #00695c;
+}
+
+.project-done {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.card-footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  border-top: 1px solid #f2efe9;
+  padding-top: 0.65rem;
+}
+
+.card-assignee {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.avatar {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: #b7a078;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.assignee-name {
+  font-size: 0.75rem;
+  color: #6d6a62;
+  font-weight: 550;
+}
+
+.card-date {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #9e9a8f;
+}
+
+/* Acciones en hover */
+.card-actions-overlay {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.15rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease-in-out;
+  padding: 0.1rem;
+}
+
+.kanban-card:hover .card-actions-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+::ng-deep .card-actions-overlay .p-button {
+  width: 1.75rem !important;
+  height: 1.75rem !important;
+  padding: 0 !important;
+}
+
+.empty-list-placeholder {
+  border: 2px dashed rgba(220, 215, 205, 0.5);
+  border-radius: 12px;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #9e9a8f;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 100px;
+  background: rgba(0, 0, 0, 0.002);
+}
+
+.empty-list-placeholder i {
+  font-size: 1.2rem;
+  color: #b7a078;
+}
+
+/* Angular CDK drag-drop preview & animations */
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(183, 160, 120, 0.2);
+  opacity: 0.95;
+  background: #ffffff;
+  border: 1px solid #d8ceb9;
+  padding: 1rem;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+  border: 2px dashed #b7a078;
+  background: #fdfdfc;
+  border-radius: 12px;
+  min-height: 90px;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drop-list-dragging .cdk-drag {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Custom Confirm Dialog styling */
+::ng-deep .custom-confirm-dialog {
+  max-width: 440px !important;
+  border-radius: 24px !important;
+  overflow: hidden;
+}
+
+::ng-deep .custom-confirm-dialog .p-dialog-header {
+  padding: 1.5rem 1.5rem 0.75rem 1.5rem !important;
+  border-bottom: none !important;
+}
+
+::ng-deep .custom-confirm-dialog .p-dialog-header .p-dialog-title {
+  font-size: 1.2rem !important;
+  font-weight: 600 !important;
+}
+
+::ng-deep .custom-confirm-dialog .p-dialog-content {
+  padding: 0.5rem 1.5rem 1.5rem 1.5rem !important;
+  font-size: 0.95rem !important;
+  line-height: 1.5 !important;
+  color: #4a4947 !important;
+}
+
+::ng-deep .custom-confirm-dialog .p-dialog-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 0.75rem !important;
+  padding: 1rem 1.5rem 1.5rem 1.5rem !important;
+  border-top: none !important;
+  background: transparent !important;
+}
+
+/* Green Cancel Button (safe action) */
+::ng-deep .custom-confirm-dialog .btn-confirm-reject {
+  background-color: #2e7d32 !important;
+  border: 1px solid #2e7d32 !important;
+  color: #ffffff !important;
+  border-radius: 20px !important;
+  padding: 0.55rem 1.4rem !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+::ng-deep .custom-confirm-dialog .btn-confirm-reject:hover {
+  background-color: #1b5e20 !important;
+  border-color: #1b5e20 !important;
+  transform: translateY(-1px);
+}
+
+/* Red Delete Button (destructive action) */
+::ng-deep .custom-confirm-dialog .btn-confirm-accept {
+  background-color: #d32f2f !important;
+  border: 1px solid #d32f2f !important;
+  color: #ffffff !important;
+  border-radius: 20px !important;
+  padding: 0.55rem 1.4rem !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+::ng-deep .custom-confirm-dialog .btn-confirm-accept:hover {
+  background-color: #b71c1c !important;
+  border-color: #b71c1c !important;
+  transform: translateY(-1px);
 /* Contenedor de la tabla: scroll externo */
 .tabla-wrapper {
   background: var(--color-tarjeta);

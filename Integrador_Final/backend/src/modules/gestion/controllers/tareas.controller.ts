@@ -1,4 +1,4 @@
-import { Body, Controller, NotImplementedException, Param, Post, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, NotImplementedException, Param, Post, Put, UseGuards } from "@nestjs/common";
 import { UpdateTareaDto } from "../dtos/input/update-tarea.dto";
 import { CreateTareaDto } from "../dtos/input/create-tarea.dto";
 import { ApiBearerAuth } from "@nestjs/swagger";
@@ -26,6 +26,13 @@ export class TareasController {
        
        await this.tareasService.actualizarTarea(dto, id);
 
+    }
+
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard)
+    @Delete(':id')
+    async eliminarTarea(@Param('id') id: number): Promise<void> {
+        await this.tareasService.eliminarTarea(id);
     }
 
 }

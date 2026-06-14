@@ -18,4 +18,8 @@ export class GestionTareaApiClient {
     actualizarTarea(idProyecto: number | null, id: number, tarea: UpdateTareaDto): Observable<void> {
         return this.httpClient.put<void>("/api/v1/proyectos/" + idProyecto + "/tareas/" + id, tarea);
     }
+
+    eliminarTarea(idProyecto: number | null, id: number): Observable<void> {
+        return this.httpClient.delete<void>("/api/v1/proyectos/" + idProyecto + "/tareas/" + id);
+    }
 }

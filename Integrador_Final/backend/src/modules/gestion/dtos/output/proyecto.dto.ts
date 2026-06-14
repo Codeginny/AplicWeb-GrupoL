@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { EstadosProyectosEnum } from "../../enums/estados-proyectos.enum";
 import { ListTareaDTO } from "./list-tarea.dto";
+import { ListColumnaDTO } from "./list-columna.dto";
 
 export class ProyectoDTO {
 
@@ -16,6 +17,8 @@ export class ProyectoDTO {
     @ApiProperty()
     tareas!: ListTareaDTO[];
 
+    @ApiProperty({ type: ListColumnaDTO, isArray: true })
+    columnas!: ListColumnaDTO[];
     @ApiProperty()
     fechaFinalizacionObjetivo?: Date | null;
 

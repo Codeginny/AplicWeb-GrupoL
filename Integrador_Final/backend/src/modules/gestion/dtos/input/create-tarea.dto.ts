@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString, IsIn, IsDateString, IsInt } from "class-validator";
 
 export class CreateTareaDto {
 
@@ -7,5 +7,25 @@ export class CreateTareaDto {
     @IsString()
     @IsNotEmpty()
     descripcion!: string;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsIn(["Alta", "Media", "Baja"])
+    prioridad?: "Alta" | "Media" | "Baja";
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsString()
+    responsable?: string;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsDateString()
+    fechaEntrega?: string;
+
+    @ApiProperty({ required: false, nullable: true })
+    @IsOptional()
+    @IsInt()
+    idColumna?: number | null;
 
 }

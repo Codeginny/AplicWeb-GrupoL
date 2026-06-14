@@ -38,6 +38,8 @@
   border: 1px solid var(--color-borde-suave);
   box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  overflow-y: auto;
+  max-height: calc(100vh - 260px);
   transition: all 0.2s;
 }
 
@@ -67,6 +69,79 @@
   font-weight: 500;
 }
 
+/* =============================================
+   SELECTOR DE CLIENTE INLINE — ESTILO TAG/PILL
+   ============================================= */
+
+.cliente-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #f5f0e8;
+  border-radius: 40px;
+  padding: 0.15rem 0.1rem 0.15rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cliente-cell:hover {
+  background: #ece4d6;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.cliente-icono {
+  font-size: 0.7rem;
+  color: #7a6e63;
+  flex-shrink: 0;
+}
+
+/* El p-select se ve como texto plano dentro del tag */
+::ng-deep .cliente-select-mini {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  min-height: unset !important;
+  height: auto !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  cursor: pointer !important;
+}
+
+::ng-deep .cliente-select-mini .p-select-label {
+  padding: 0.15rem 0.3rem !important;
+  font-size: 0.8rem !important;
+  color: #7a6e63 !important;
+  font-weight: 400 !important;
+  line-height: 1.3 !important;
+  cursor: pointer !important;
+}
+
+::ng-deep .cliente-select-mini .p-select-label.p-placeholder {
+  color: #b8a992 !important;
+  font-style: italic;
+}
+
+::ng-deep .cliente-select-mini .p-select-dropdown {
+  width: 22px !important;
+  padding: 0 !important;
+  color: #b8a992 !important;
+}
+
+::ng-deep .cliente-select-mini .p-select-dropdown .p-icon {
+  width: 0.65rem !important;
+  height: 0.65rem !important;
+}
+
+::ng-deep .cliente-select-mini .p-select-clear-icon {
+  display: none !important;
+}
+
+::ng-deep .cliente-select-mini:hover .p-select-label {
+  color: #5c4e3d !important;
+}
+
+::ng-deep .cliente-select-mini:hover .p-select-dropdown {
+  color: #7a6e63 !important;
 .badge-plazo {
   display: inline-block;
   padding: 0.25rem 0.75rem;

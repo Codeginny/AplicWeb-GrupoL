@@ -49,9 +49,10 @@ export class GestionProyecto {
 
     readonly form: FormGroup = new FormGroup({
         nombre: new FormControl("", [Validators.required]),
-        cliente: new FormControl(null),
-        estado: new FormControl(null),
+        cliente: new FormControl<number | null>(null),
+        estado: new FormControl<string | null>(null),
         fechaFinalizacionObjetivo: new FormControl(null)
+
     });
 
     constructor() {
@@ -116,6 +117,7 @@ export class GestionProyecto {
         this.visible.set(false);
     }
 
+
     guardarProyecto(): void {
         if (!this.form.valid) {
             this.form.markAllAsTouched();
@@ -124,6 +126,9 @@ export class GestionProyecto {
         }
 
         const formRawValue = this.form.getRawValue();
+
+        // El control 'cliente' ahora siempre es un número (id) o null gracias a optionValue="id"
+        const clienteId: number | null = formRawValue.cliente != null ? Number(formRawValue.cliente) : null;
 
         if (this.proyectoSeleccionado()) {
             const dto: UpdateProyectoDto = {

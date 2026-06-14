@@ -36,4 +36,14 @@ export class TareasService {
         await this.tareasRepository.save(tarea);
     }
 
+    async eliminarTarea(idTarea: number): Promise<void> {
+        const tarea: Tarea | null = await this.tareasRepository.findOne({ where: { id: idTarea } });
+
+        if (!tarea) {
+            throw new BadRequestException("La tarea indicada no existe");
+        }
+
+        await this.tareasRepository.delete(idTarea);
+    }
+
 }

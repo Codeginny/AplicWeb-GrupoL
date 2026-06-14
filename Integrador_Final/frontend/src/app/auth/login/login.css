@@ -127,7 +127,8 @@
 
   .input-icon {
     position: absolute;
-    left: 1rem;
+    right: 1.25rem;
+    left: auto;
     top: 50%;
     transform: translateY(-50%);
     color: #c0a886;
@@ -137,7 +138,7 @@
 
   input {
     width: 100%;
-    padding: 0.85rem 1rem 0.85rem 2.5rem;
+    padding: 0.85rem 3rem 0.85rem 1.25rem;
     border-radius: 28px;
     border: 1.5px solid #e6ddd0;
     background: #fffef8;
@@ -158,21 +159,39 @@
   position: relative;
 }
 
+::ng-deep p-password,
+::ng-deep .p-password {
+  display: block !important;
+  width: 100% !important;
+  position: relative !important;
+}
+
+::ng-deep .p-password input,
+::ng-deep .p-password-input,
 ::ng-deep .password-input-custom {
   width: 100% !important;
-  padding: 0.85rem 2.5rem 0.85rem 1rem !important;
+  padding: 0.85rem 3rem 0.85rem 1.25rem !important;
   border-radius: 28px !important;
   border: 1.5px solid #e6ddd0 !important;
   background: #fffef8 !important;
   font-size: 0.95rem !important;
-
-  &:focus {
-    border-color: #f2bc5b !important;
-    outline: none !important;
-    box-shadow: 0 0 0 3px rgba(242, 188, 91, 0.2) !important;
-  }
 }
 
+::ng-deep .p-password input:focus,
+::ng-deep .p-password-input:focus,
+::ng-deep .password-input-custom:focus {
+  border-color: #f2bc5b !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(242, 188, 91, 0.2) !important;
+}
+
+::ng-deep .p-password-icon,
+::ng-deep .p-password-toggle-icon,
+::ng-deep .p-password-toggle,
+::ng-deep p-password i,
+::ng-deep p-password svg {
+  position: absolute !important;
+  right: 1.25rem !important;
 ::ng-deep .p-password {
   width: 100%;
   position: relative;
@@ -189,6 +208,14 @@
   color: #c0a886 !important;
   z-index: 10 !important;
   cursor: pointer !important;
+  background: transparent !important;
+  margin: 0 !important;
+}
+
+::ng-deep .p-password-icon:hover,
+::ng-deep .p-password-toggle-icon:hover,
+::ng-deep p-password i:hover,
+::ng-deep p-password svg:hover {
   width: 1.2rem !important;
   height: 1.2rem !important;
   transition: color 0.2s;

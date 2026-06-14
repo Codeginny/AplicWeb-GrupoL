@@ -10,6 +10,7 @@ import { ListTareaDTO } from "../listado/list-tarea-dto";
 import { EstadosTareasEnum } from "../estados-tareas-enum";
 import { UpdateTareaDto } from "./update-tarea-dto";
 import { CreateTareaDTO } from "./create-tarea-dto";
+import { ColumnaDTO } from "../listado/columna-dto";
 
 @Component({
     selector: "app-gestion-tarea",
@@ -23,7 +24,7 @@ export class GestionTarea {
 
     tareaSeleccionada: ModelSignal<ListTareaDTO | null> = model<ListTareaDTO | null>(null);
 
-    readonly estados: WritableSignal<string[]> = signal(Object.values(EstadosTareasEnum));
+    columnas: InputSignal<ColumnaDTO[]> = input<ColumnaDTO[]>([]);
 
     private readonly messageService: MessageService = inject(MessageService);
 
@@ -38,9 +39,14 @@ export class GestionTarea {
         return "Crear tarea";
     });
 
+    readonly prioridades: string[] = ["Baja", "Media", "Alta"];
+
     readonly form: FormGroup = new FormGroup({
         descripcion: new FormControl("", [Validators.required]),
-        estado: new FormControl(null)
+        idColumna: new FormControl(null),
+        prioridad: new FormControl(null),
+        responsable: new FormControl(""),
+        fechaEntrega: new FormControl(null)
     });
 
     constructor() {
@@ -48,13 +54,19 @@ export class GestionTarea {
             if (this.tareaSeleccionada()) {
                 this.form.patchValue({
                     descripcion: this.tareaSeleccionada()?.descripcion,
-                    estado: this.tareaSeleccionada()?.estado
+                    idColumna: this.tareaSeleccionada()?.idColumna || null,
+                    prioridad: this.tareaSeleccionada()?.prioridad || null,
+                    responsable: this.tareaSeleccionada()?.responsable || "",
+                    fechaEntrega: this.tareaSeleccionada()?.fechaEntrega || null
                 });
             }
             else {
                 this.form.reset({
                     descripcion: "",
-                    estado: null
+                    idColumna: null,
+                    prioridad: null,
+                    responsable: "",
+                    fechaEntrega: null
                 });
             }
         });
@@ -64,7 +76,10 @@ export class GestionTarea {
         this.tareaSeleccionada.set(null);
         this.form.reset({
             descripcion: "",
-            estado: null
+            idColumna: null,
+            prioridad: null,
+            responsable: "",
+            fechaEntrega: null
         });
         this.visible.set(false);
     }
@@ -81,6 +96,10 @@ export class GestionTarea {
         if (this.tareaSeleccionada()) {
             const dto: UpdateTareaDto = {
                 descripcion: formRawValue.descripcion,
+                idColumna: formRawValue.idColumna || null,
+                prioridad: formRawValue.prioridad === null || formRawValue.prioridad === undefined ? null : formRawValue.prioridad,
+                responsable: formRawValue.responsable === null || formRawValue.responsable === undefined ? null : formRawValue.responsable,
+                fechaEntrega: formRawValue.fechaEntrega === null || formRawValue.fechaEntrega === undefined ? null : formRawValue.fechaEntrega,
                 estado: formRawValue.estado,
                 idMetaIntermedia: this.tareaSeleccionada()?.idMetaIntermedia || null
             };
@@ -102,7 +121,11 @@ export class GestionTarea {
             });
         } else {
             const dto: CreateTareaDTO = {
-                descripcion: formRawValue.descripcion
+                descripcion: formRawValue.descripcion,
+                prioridad: formRawValue.prioridad || undefined,
+                responsable: formRawValue.responsable || undefined,
+                fechaEntrega: formRawValue.fechaEntrega || undefined,
+                idColumna: formRawValue.idColumna || (this.columnas().length > 0 ? this.columnas()[0].id : null)
             };
             this.gestionTareaApiClient.crearTarea(this.idProyecto(), dto).subscribe({
                 next: () => {

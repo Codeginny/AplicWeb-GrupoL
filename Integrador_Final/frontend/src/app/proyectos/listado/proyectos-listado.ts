@@ -14,12 +14,16 @@ import { ClientesListadoApiClient } from "../clientes/listado/clientes-listado-a
 import { EstadosClientesEnum } from "../clientes/estados-clientes-enum";
 import { GestionProyectoApiClient } from "../gestion/gestion-proyecto-api-client";
 import { UpdateProyectoDto } from "../gestion/update-proyecto-dto";
+import * as XLSX from 'xlsx';
+
+import { DatePipe } from "@angular/common";
 
 @Component({
   selector: "app-proyectos-listado",
   templateUrl: "./proyectos-listado.html",
   styleUrls: ["./proyectos-listado.css"],
-  imports: [TableModule, ButtonModule, Template, TooltipModule, GestionProyecto, SelectModule, FormsModule]
+  imports: [TableModule, ButtonModule, Template, TooltipModule, GestionProyecto, DatePipe, SelectModule, FormsModule]
+
 })
 export class ProyectosListado implements OnInit {
 
@@ -110,6 +114,116 @@ export class ProyectosListado implements OnInit {
 
   gestionarTareas(proyecto: ListProyectoDTO): void {
     window.open(`/proyectos/${proyecto.id}/tareas`, '_blank');
+  }
+
+  //  Exportar a Excel
+  exportarExcel(): void {
+  const proyectos = this.proyectos();
+  
+  // Mapear los datos a un formato plano para Excel
+  const datosExcel = proyectos.map(proyecto => ({
+    'Nombre': proyecto.nombre,
+    'Cliente': proyecto.cliente?.nombre || 'Sin asignar',
+    'Estado': proyecto.estado
+  }));
+
+  // Crear hoja de trabajo y libro
+  const worksheet = XLSX.utils.json_to_sheet(datosExcel);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Proyectos');
+
+  // Generar archivo y forzar descarga
+  XLSX.writeFile(workbook, `proyectos_${new Date().toISOString().slice(0,19)}.xlsx`);
+}
+
+//exportacion a CSV
+exportarCSV(): void {
+  const proyectos = this.proyectos();
+  
+  // Mapear los datos a un formato plano para CSV
+  const datosCSV = proyectos.map(proyecto => ({
+    'Nombre': proyecto.nombre,
+    'Cliente': proyecto.cliente?.nombre || 'Sin asignar',
+    'Estado': proyecto.estado
+  }));
+
+  // Convertir a CSV
+  const csvData = this.convertirACSV(datosCSV);
+  
+  // Crear blob y descargar
+  const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });// Crear un nuevo Blob con el contenido CSV y el tipo MIME adecuado para archivos CSV. Esto prepara los datos para su descarga como un archivo.
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `proyectos_${new Date().toISOString().slice(0,19)}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+// Método auxiliar para convertir JSON a CSV
+private convertirACSV(data: any[]): string {
+  if (!data || data.length === 0) return '';
+  
+  // Obtener las cabeceras
+  const headers = Object.keys(data[0]);
+  
+  // Crear fila de cabeceras
+  const csvRows = [];
+  csvRows.push(headers.join(','));
+  
+  // Crear filas de datos
+  for (const row of data) {
+    const values = headers.map(header => {
+      let value = row[header]?.toString() || '';
+      // Escapar comillas dobles y envolver en comillas si contiene comas
+      value = value.replace(/"/g, '""');
+      if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+        value = `"${value}"`;
+      }
+      return value;
+    });
+    csvRows.push(values.join(','));
+  }
+  
+  return csvRows.join('\n');
+}
+  getTextoPlazo(proyecto: ListProyectoDTO): string {
+    if (!proyecto.fechaFinalizacionObjetivo) return 'Al día';
+    if (proyecto.estado === 'FINALIZADO') return 'Completado'; 
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const objetivo = new Date(proyecto.fechaFinalizacionObjetivo);
+    objetivo.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.ceil((objetivo.getTime() - hoy.getTime()) / (1000 * 3600 * 24));
+
+    if (diffDays < 0) {
+      const retraso = Math.abs(diffDays);
+      return `Retrasado ${retraso} día${retraso !== 1 ? 's' : ''}`;
+    }
+    if (diffDays <= 7) {
+      return `Próximo a finalizar (${diffDays} día${diffDays !== 1 ? 's' : ''})`;
+    }
+    return 'Al día';
+  }
+
+  getClasePlazo(proyecto: ListProyectoDTO): string {
+    if (!proyecto.fechaFinalizacionObjetivo) return 'plazo-al-dia';
+    if (proyecto.estado === 'FINALIZADO') return 'plazo-completado';
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const objetivo = new Date(proyecto.fechaFinalizacionObjetivo);
+    objetivo.setHours(0, 0, 0, 0);
+    const diffDays = Math.ceil((objetivo.getTime() - hoy.getTime()) / (1000 * 3600 * 24));
+
+    if (diffDays < 0) return 'plazo-retrasado';
+    if (diffDays <= 7) return 'plazo-proximo';
+    return 'plazo-al-dia';
   }
 
 }

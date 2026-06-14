@@ -19,5 +19,7 @@ export class ProyectoDTO {
 
     @ApiProperty({ type: ListColumnaDTO, isArray: true })
     columnas!: ListColumnaDTO[];
+    @ApiProperty()
+    fechaFinalizacionObjetivo?: Date | null;
 
 }

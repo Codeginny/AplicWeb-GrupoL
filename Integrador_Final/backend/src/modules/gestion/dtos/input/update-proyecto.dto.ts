@@ -24,4 +24,9 @@ export class UpdateProyectoDto {
     @IsOptional()
     estado?: EstadosProyectosEnum;
 
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsDateString()
+    fechaFinalizacionObjetivo?: Date;
+
 }

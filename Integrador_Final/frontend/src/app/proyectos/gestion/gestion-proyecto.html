@@ -15,6 +15,37 @@
                 <input pInputText type="text" id="nombre" formControlName="nombre" />
             </div>
 
+            <div class="campo-grupo">
+                <label for="fechaFinalizacion" class="label-moderno">Fecha Finalización objetivo</label>
+                <input pInputText type="date" id="fechaFinalizacion" formControlName="fechaFinalizacionObjetivo" />
+            </div>
+
+            <div class="campo-grupo">
+                <label class="label-moderno">Cliente</label>
+                <div class="input-combinado">
+                   <p-select
+                        class="selector-cliente"
+                        formControlName="cliente"
+                        [options]="clientes()"
+                        optionLabel="nombre"
+                        optionValue="id" 
+                        [placeholder]="'Seleccionar cliente'"
+                        [showClear]="true"
+                        appendTo="body">
+                    </p-select>
+                    <button 
+                    type="button"
+                    id="boton-gestionar-clientes" 
+                    pButton 
+                    icon="pi pi-cog"
+                    pTooltip="Gestionar Clientes"
+                    tooltipPosition="top"
+                    (click)="gestionarClientes()"
+                    severity="secondary">
+                    </button>
+                </div>
+            </div>
+
             @if (proyectoSeleccionado()) {
                 <div class="campo-grupo animate-fade-in">
                     <label for="estado" class="label-moderno">Estado del Proyecto</label>

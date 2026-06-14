@@ -99,7 +99,9 @@ export class GestionTarea {
                 idColumna: formRawValue.idColumna || null,
                 prioridad: formRawValue.prioridad === null || formRawValue.prioridad === undefined ? null : formRawValue.prioridad,
                 responsable: formRawValue.responsable === null || formRawValue.responsable === undefined ? null : formRawValue.responsable,
-                fechaEntrega: formRawValue.fechaEntrega === null || formRawValue.fechaEntrega === undefined ? null : formRawValue.fechaEntrega
+                fechaEntrega: formRawValue.fechaEntrega === null || formRawValue.fechaEntrega === undefined ? null : formRawValue.fechaEntrega,
+                estado: formRawValue.estado,
+                idMetaIntermedia: this.tareaSeleccionada()?.idMetaIntermedia || null
             };
             this.gestionTareaApiClient.actualizarTarea(this.idProyecto(), this.tareaSeleccionada()?.id!, dto).subscribe({
                 next: () => {

@@ -50,33 +50,51 @@ export class GestionProyecto {
     readonly form: FormGroup = new FormGroup({
         nombre: new FormControl("", [Validators.required]),
         cliente: new FormControl<number | null>(null),
-        estado: new FormControl<string | null>(null)
+        estado: new FormControl<string | null>(null),
+        fechaFinalizacionObjetivo: new FormControl(null)
+
     });
 
     constructor() {
+        let previousVisible = false;
+
         effect(() => {
-            if (this.proyectoSeleccionado()) {
-                this.form.patchValue({
-                    nombre: this.proyectoSeleccionado()?.nombre,
-                    cliente: this.proyectoSeleccionado()?.cliente?.id ?? null,
-                    estado: this.proyectoSeleccionado()?.estado
-                });
+            const currentlyVisible = this.visible();
+            
+            const proyecto = this.proyectoSeleccionado(); 
+
+
+            if (currentlyVisible && !previousVisible) {
+                
+                if (proyecto) {
+                  
+                    this.form.patchValue({
+                        nombre: proyecto.nombre,
+                        cliente: proyecto.cliente ? proyecto.cliente.id : null,
+                        estado: proyecto.estado,
+                        fechaFinalizacionObjetivo: proyecto.fechaFinalizacionObjetivo
+                    });
+                } else {
+                
+                    this.form.reset({
+                        nombre: "",
+                        cliente: null,
+                        estado: EstadosProyectosEnum.ACTIVO,
+                        fechaFinalizacionObjetivo: null
+                    });
+                }
             }
-            else {
-                this.form.reset({
-                    nombre: "",
-                    cliente: null,
-                    estado: EstadosProyectosEnum.ACTIVO
-                });
-            }
+
+            
+            previousVisible = currentlyVisible;
         });
 
+        
         effect(() => {
             if (!this.dialogClientesVisible()) {
                 this.refrescarClientes();
             }
         });
-
     }
 
     ngOnInit(): void {
@@ -115,8 +133,9 @@ export class GestionProyecto {
         if (this.proyectoSeleccionado()) {
             const dto: UpdateProyectoDto = {
                 nombre: formRawValue.nombre,
-                idCliente: clienteId,
-                estado: formRawValue.estado
+                idCliente: formRawValue.cliente,
+                estado: formRawValue.estado,
+                fechaFinalizacionObjetivo: formRawValue.fechaFinalizacionObjetivo || null
             };
             this.gestionProyectoApiClient.actualizarProyecto(this.proyectoSeleccionado()?.id!, dto).subscribe({
                 next: () => {
@@ -137,7 +156,8 @@ export class GestionProyecto {
         } else {
             const dto: CreateProyectoDTO = {
                 nombre: formRawValue.nombre,
-                idCliente: clienteId!
+                idCliente: formRawValue.cliente,
+                fechaFinalizacionObjetivo: formRawValue.fechaFinalizacionObjetivo || null// Si no se proporciona una fecha, se envía como null para que el backend lo maneje correctamente, sino se enviaría como undefined y el backend no lo interpretaría como una ausencia de valor.
             };
             this.gestionProyectoApiClient.crearProyecto(dto).subscribe({
                 next: () => {

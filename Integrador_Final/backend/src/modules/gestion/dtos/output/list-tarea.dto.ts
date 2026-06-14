@@ -23,5 +23,7 @@ export class ListTareaDTO {
 
     @ApiProperty({ required: false })
     fechaEntrega?: string | null;
+    
+    @ApiProperty({ required: false, nullable: true }) 
+    idMetaIntermedia?: number | null;
 
-}

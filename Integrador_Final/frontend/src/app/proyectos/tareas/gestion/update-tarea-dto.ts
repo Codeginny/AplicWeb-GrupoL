@@ -7,4 +7,6 @@ export interface UpdateTareaDto extends Pick<CreateTareaDTO, "descripcion"> {
     responsable?: string | null;
     fechaEntrega?: string | null;
     idColumna?: number | null;
+    idMetaIntermedia?: number | null;
+
 }

@@ -6,6 +6,9 @@ import { ClientesListadoApiClient } from "./clientes-listado-api-client";
 import { ListClienteDTO } from "./list-cliente-dto";
 import { DialogModule } from "primeng/dialog";
 import { GestionCliente } from "../gestion/gestion-cliente";
+import * as XLSX from 'xlsx';
+
+
 
 @Component({
   selector: "app-clientes-listado",
@@ -42,6 +45,8 @@ export class ClientesListado implements OnInit {
   refrescarClientes(): void {
     this.clientesListadoApiClient.buscarClientes().subscribe({
       next: (data) => {
+        console.log('Datos recibidos del backend:', data); // Ver la estructura completa de los datos
+        console.log('Primer cliente:', data[0]); //   Ver el primer cliente para confirmar la estructura
         this.clientes.set(data);
       },
       error: (error) => {
@@ -62,5 +67,91 @@ export class ClientesListado implements OnInit {
   abrirDialog(): void {
     this.dialogVisible.set(true);
   }
+
+
+
+
+//  Exportar a Excel
+  exportarExcel(): void {
+  const clientes = this.clientes();
+  
+  // Mapear los datos a un formato plano para Excel
+  const datosExcel = clientes.map(cliente => ({
+    'Nombre': cliente.nombre,
+    'Estado': cliente.estado,
+    'Telefono': cliente.telefono,
+    'Email': cliente.email
+  }));
+
+  // Crear hoja de trabajo y libro
+  const worksheet = XLSX.utils.json_to_sheet(datosExcel);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Clientes');
+
+  // Generar archivo y forzar descarga
+  XLSX.writeFile(workbook, `clientes${new Date().toISOString().slice(0,19)}.xlsx`);
+}
+
+//Exportar a CSV
+exportarCSV(): void {
+  const clientes = this.clientes();
+  
+  // Mapear los datos a un formato plano para CSV
+  const datosCSV = clientes.map(cliente => ({
+    'Nombre': cliente.nombre,
+    'Estado': cliente.estado,
+    'Telefono': cliente.telefono,
+    'Email': cliente.email
+  }));
+
+
+  // Convertir a CSV
+  let csvData = this.convertirACSV(datosCSV);
+  
+  // Agregar BOM (Byte Order Mark) para caracteres UTF-8
+  // Esto es crucial para que Excel y otros programas lean bien los acentos
+  const blob = new Blob(['\uFEFF' + csvData], { type: 'text/csv;charset=utf-8;' });
+  
+  // Crear link y descargar
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `clientes_${new Date().toISOString().slice(0,19)}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+
+// Método auxiliar para convertir JSON a CSV
+private convertirACSV(data: any[]): string {
+  if (!data || data.length === 0) return '';
+  
+  // Obtener las cabeceras
+  const headers = Object.keys(data[0]);
+  
+  // Crear fila de cabeceras
+  const csvRows = [];
+  csvRows.push(headers.join(','));
+  
+  // Crear filas de datos
+  for (const row of data) {
+    const values = headers.map(header => {
+      let value = row[header]?.toString() || '';
+      // Escapar comillas dobles y envolver en comillas si contiene comas
+      value = value.replace(/"/g, '""');
+      if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+        value = `"${value}"`;
+      }
+      return value;
+    });
+    csvRows.push(values.join(','));
+  }
+  
+  return csvRows.join('\n');
+}
+
 
 }

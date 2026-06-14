@@ -8,4 +8,4 @@ export interface ListTareaDTO{
     prioridad?: 'Alta' | 'Media' | 'Baja' | null;
     responsable?: string | null;
     fechaEntrega?: string | null;
-}
+    idMetaIntermedia?: number | null;

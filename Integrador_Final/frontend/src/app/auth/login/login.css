@@ -192,6 +192,17 @@
 ::ng-deep p-password svg {
   position: absolute !important;
   right: 1.25rem !important;
+::ng-deep .p-password {
+  width: 100%;
+  position: relative;
+  display: inline-flex !important;
+}
+
+::ng-deep .p-password > svg,
+::ng-deep .p-password > i,
+::ng-deep .p-password-icon {
+  position: absolute !important;
+  right: 1.25rem !important; /* Ajustado para alinear con el padding de tu input */
   top: 50% !important;
   transform: translateY(-50%) !important;
   color: #c0a886 !important;
@@ -205,6 +216,14 @@
 ::ng-deep .p-password-toggle-icon:hover,
 ::ng-deep p-password i:hover,
 ::ng-deep p-password svg:hover {
+  width: 1.2rem !important;
+  height: 1.2rem !important;
+  transition: color 0.2s;
+}
+
+::ng-deep .p-password > svg:hover,
+::ng-deep .p-password > i:hover,
+::ng-deep .p-password-icon:hover {
   color: #a5865a !important;
 }
 

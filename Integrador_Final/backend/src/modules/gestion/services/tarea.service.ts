@@ -27,16 +27,13 @@ export class TareasService {
     }
 
     async actualizarTarea(dto: UpdateTareaDto, idTarea: number): Promise<void> {
-        const tarea: Tarea | null = await this.tareasRepository.findOne({ where: { id: idTarea } });
-
-        if (!tarea) {
-            throw new BadRequestException("La tarea indicada no existe");
+        if (dto.idMetaIntermedia !== undefined) {
+            dto.idMetaIntermedia = dto.idMetaIntermedia === null ? null : Number(dto.idMetaIntermedia);
         }
-
+        const tarea = await this.tareasRepository.findOne({ where: { id: idTarea } });
+        if (!tarea) throw new BadRequestException("Tarea no existe");
         this.tareasRepository.merge(tarea, dto);
-
         await this.tareasRepository.save(tarea);
-
     }
 
     async eliminarTarea(idTarea: number): Promise<void> {

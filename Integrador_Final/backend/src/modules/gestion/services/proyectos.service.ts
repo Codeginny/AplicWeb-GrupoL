@@ -34,8 +34,11 @@ export class ProyectosService {
             }
         }
 
-        await this.repository.save(proyecto);
-        return { id: proyecto.id };
+        // guardamos el proyecto
+        const proyectoGuardado = await this.repository.save(proyecto);
+
+        // retornamos el id generado
+        return { id: proyectoGuardado.id };
     }
 
     async actualizarProyecto(id: number, dto: UpdateProyectoDto): Promise<void> {
@@ -101,119 +104,15 @@ export class ProyectosService {
             throw new BadRequestException('Proyecto no encontrado');
         }
 
-        // si no tiene columnas las creo automaticamente
-        if (!proyecto.columnas || proyecto.columnas.length === 0) {
-            const col1 = new Columna();
-            col1.nombre = 'Pendiente';
-            col1.orden = 1;
-            col1.idProyecto = proyecto.id;
-            col1.proyecto = proyecto;
-            col1.tareas = [];
-
-            const col2 = new Columna();
-            col2.nombre = 'En proceso';
-            col2.orden = 2;
-            col2.idProyecto = proyecto.id;
-            col2.proyecto = proyecto;
-            col2.tareas = [];
-
-            const col3 = new Columna();
-            col3.nombre = 'Terminado';
-            col3.orden = 3;
-            col3.idProyecto = proyecto.id;
-            col3.proyecto = proyecto;
-            col3.tareas = [];
-
-            await this.repository.manager.save(Columna, [col1, col2, col3]);
-            
-            proyecto = await this.repository.findOne({ 
-                where: { id }, 
-                relations: ['cliente', 'tareas', 'columnas', 'columnas.tareas'],
-                order: { 
-                    tareas: { id: 'ASC' }
-                } 
-            });
-            if (!proyecto) throw new BadRequestException('Proyecto no encontrado');
-        } else if (proyecto.columnas.length < 3) {
-            // si tiene menos de 3 columnas agrego las que faltan
-            const names = ['Pendiente', 'En proceso', 'Terminado'];
-            const currentCount = proyecto.columnas.length;
-            const newCols: Columna[] = [];
-            for (let i = currentCount; i < 3; i++) {
-                const col = new Columna();
-                col.nombre = names[i];
-                col.orden = i + 1;
-                col.idProyecto = proyecto.id;
-                col.proyecto = proyecto;
-                col.tareas = [];
-                newCols.push(col);
-            }
-            await this.repository.manager.save(Columna, newCols);
-            proyecto = await this.repository.findOne({ 
-                where: { id }, 
-                relations: ['cliente', 'tareas', 'columnas', 'columnas.tareas'],
-                order: { 
-                    tareas: { id: 'ASC' }
-                } 
-            });
-            if (!proyecto) throw new BadRequestException('Proyecto no encontrado');
-        } else if (proyecto.columnas.length > 3) {
-            // si tiene de mas borro las sobrantes
-            proyecto.columnas.sort((a, b) => a.orden - b.orden);
-            const toKeep = proyecto.columnas.slice(0, 3);
-            const toDelete = proyecto.columnas.slice(3);
-            await this.repository.manager.remove(Columna, toDelete);
-            proyecto = await this.repository.findOne({ 
-                where: { id }, 
-                relations: ['cliente', 'tareas', 'columnas', 'columnas.tareas'],
-                order: { 
-                    tareas: { id: 'ASC' }
-                } 
-            });
-            if (!proyecto) throw new BadRequestException('Proyecto no encontrado');
-        }
-
-        // ordeno las columnas y corrijo el orden si hace falta
-        proyecto.columnas.sort((a, b) => a.orden - b.orden);
-        let orderChanged = false;
-        for (let i = 0; i < proyecto.columnas.length; i++) {
-            if (proyecto.columnas[i].orden !== i + 1) {
-                proyecto.columnas[i].orden = i + 1;
-                orderChanged = true;
-            }
-        }
-        if (orderChanged) {
-            await this.repository.manager.save(Columna, proyecto.columnas);
+        // inicializamos seguras las listas si vienen nulas
+        if (!proyecto.columnas) {
+            proyecto.columnas = [];
+        } else {
             proyecto.columnas.sort((a, b) => a.orden - b.orden);
         }
 
-        // asigno columna a tareas que no tienen
-        let changed = false;
-        for (const t of proyecto.tareas) {
-            if (!t.idColumna || !t.estado) {
-                let matchedCol = proyecto.columnas[0];
-                let matchedEstado = EstadosTareasEnum.PENDIENTE;
-                if (t.estado === EstadosTareasEnum.EN_PROGRESO) {
-                    matchedCol = proyecto.columnas[1];
-                    matchedEstado = EstadosTareasEnum.EN_PROGRESO;
-                } else if (t.estado === EstadosTareasEnum.FINALIZADA) {
-                    matchedCol = proyecto.columnas[2];
-                    matchedEstado = EstadosTareasEnum.FINALIZADA;
-                }
-                
-                t.idColumna = matchedCol.id;
-                t.columna = matchedCol;
-                t.estado = matchedEstado;
-                if (!matchedCol.tareas) matchedCol.tareas = [];
-                if (!matchedCol.tareas.some(x => x.id === t.id)) {
-                    matchedCol.tareas.push(t);
-                }
-                changed = true;
-            }
-        }
-
-        if (changed) {
-            await this.repository.save(proyecto);
+        if (!proyecto.tareas) {
+            proyecto.tareas = [];
         }
 
         const dto = new ProyectoDTO();

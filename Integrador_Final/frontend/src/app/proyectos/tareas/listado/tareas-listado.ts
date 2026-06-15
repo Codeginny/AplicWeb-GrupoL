@@ -113,6 +113,18 @@ export class TareasListado implements OnInit {
   refreshProyecto(): void {
     this.proyectoApiClient.buscarProyecto(this.idProyecto()).subscribe({
       next: (data) => {
+        // inicializamos las columnas por defecto si vienen vacias de la base de datos
+        if (!data.columnas || data.columnas.length === 0) {
+            const tareasP = data.tareas ? data.tareas.filter((t: any) => t.estado === 'PENDIENTE' || !t.estado) : [];
+            const tareasEP = data.tareas ? data.tareas.filter((t: any) => t.estado === 'EN_PROGRESO') : [];
+            const tareasF = data.tareas ? data.tareas.filter((t: any) => t.estado === 'FINALIZADA') : [];
+
+            data.columnas = [
+                { id: 1, nombre: "Pendiente", orden: 1, tareas: tareasP },
+                { id: 2, nombre: "En Proceso", orden: 2, tareas: tareasEP },
+                { id: 3, nombre: "Terminado", orden: 3, tareas: tareasF }
+            ];
+        }
         this.proyecto.set(data);
         const cols = (data.columnas || []).sort((a, b) => a.orden - b.orden);
         this.columnas.set(cols);
